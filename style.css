@@ -1,0 +1,124 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    background-image: url(https://img.freepik.com/vector-gratis/fondo-puntos-gris-claro_78370-2583.jpg);
+}
+
+/* Contenedor del logo */
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* Espacio entre el logo y las categorías */
+    background-color: white;
+    font-family: 'Trebuchet MS';
+}
+
+/* Estilo para la imagen */
+.logo {
+    width: 200px;
+    height: auto;
+}
+
+/* Estilo del texto debajo del logo */
+.logo-text {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Menú de categorías */
+.menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Estilo de las categorías */
+.menu > li {
+    background-color: lightseagreen; /* Fondo por defecto en caso de no encontrar la imagen */
+    color: black;
+    cursor: pointer;
+     /* width: 500px;*/
+    
+    height: 10vw;
+    margin: 1vw;
+    text-align:center;
+    text-shadow: 2px 2px 7px white;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: clamp(1.5em, 2vw, 2em);
+    background-size: cover; /* Ajusta la imagen de fondo para cubrir el tamaño del botón */
+    background-position: center; /* Centra la imagen en el botón */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    
+}
+
+.menu > button{
+    background-color: gray; /* Fondo por defecto en caso de no encontrar la imagen */
+    color: white;
+    cursor: pointer;
+
+    /* padding: 10px; */
+    /* width: 300px; */
+
+    height: 60px;
+    margin: 5px;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size:clamp(1em, 2vw, 2em);
+    background-size: cover; /* Ajusta la imagen de fondo para cubrir el tamaño del botón */
+    background-position: center; /* Centra la imagen en el botón */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+#cat1{
+    background-image: url('https://resizer.glanacion.com/resizer/v2/provolet-TP6SDEW4YRBI5K5OFYZXZRVK5A.jpg?auth=eef0901fdb54418455d880a2216e0166f3c898aed9fbf0a53d9720fcc05b9a88&width=1920&height=1280&quality=70&smart=false&focal=774,674'); /* Ruta de la imagen de fondo */
+}
+
+#cat2{
+    background-image: url('https://www.themealdb.com/images/media/meals/vvtvtr1511180578.jpg'); /* Ruta de la imagen de fondo */
+}
+
+#cat3{
+    background-image: url('https://gazpachorestobar.pedidosonline.uy/wp-content/uploads/2023/01/fritas.jpg'); /* Ruta de la imagen de fondo */
+}
+
+#cat4{
+    background-image: url('https://www.themealdb.com/images/media/meals/ursuup1487348423.jpg'); /* Ruta de la imagen de fondo */
+}
+
+#cat5{
+    background-image: url('https://alicante.com.ar/wp-content/uploads/2022/06/507_receta-1200x900.jpg'); /* Ruta de la imagen de fondo */
+}
+
+/* Estilo de las subcategorías */
+.submenu {
+    display: none;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: #333;
+    position: relative;
+    font-size: clamp(1em, 1.5vw, 2em);
+}
+
+.submenu li {
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.submenu li:hover {
+    background-color: blue;
+}
