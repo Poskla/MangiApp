@@ -24,3 +24,6 @@ body {
 .accordion-button:not(.collapsed) {
     box-shadow: none;
 }
+#titulo{
+    border: 2px solid black;
+}
