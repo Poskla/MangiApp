@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MangiApp</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-image: url(https://img.freepik.com/vector-gratis/fondo-puntos-gris-claro_78370-2583.jpg);
+        }
+
+        /* Contenedor del logo */
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; /* Espacio entre el logo y las categorías */
+            background-color: white;
+            font-family: 'Trebuchet MS';
+        }
+
+        /* Estilo para la imagen */
+        .logo {
+            width: 200px;
+            height: auto;
+        }
+
+        /* Estilo del texto debajo del logo */
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Menú de categorías */
+        .menu {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centra las categorías */
+        }
+
+        /* Estilo de las categorías */
+        .menu > li {
+            background-color: lightseagreen; /* Fondo por defecto en caso de no encontrar la imagen */
+            color: black;
+            padding: 10px;
+            cursor: pointer;
+            width: 500px;
+            height: 50px;
+            margin: 5px;
+            text-align: center;
+            text-shadow: 2px 2px 7px white;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 40px;
+            background-size: cover; /* Ajusta la imagen de fondo para cubrir el tamaño del botón */
+            background-position: center; /* Centra la imagen en el botón */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+        }
+
+        button{
+            background-color: gray; /* Fondo por defecto en caso de no encontrar la imagen */
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            width: 300px;
+            height: 60px;
+            margin: 5px;
+            text-align: center;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 25px;
+            background-size: cover; /* Ajusta la imagen de fondo para cubrir el tamaño del botón */
+            background-position: center; /* Centra la imagen en el botón */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+        }
+
+        /* Estilo de las subcategorías */
+        .submenu {
+            display: none;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            background-color: #333;
+            position: relative;
+        }
+
+        .submenu li {
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .submenu li:hover {
+            background-color: #555;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <!-- Imagen logo -->
+            <a href="index.html" target="_blank">
+                <img src="Logo_Mangiapp.png" alt="Logo MangiApp" style="width:150px; height:auto;">
+                <!-- Texto logo -->
+                <div class="logo-text">MangiApp</div>
+            </a>
+        </div>          
+    </header>
+
+    <h1>Sobre nosotros</h1>
+    <h2>Descripción</h2>
+
+    <button onclick="redirigir('faq.html')">Preguntas frecuentes</button>
+
+    <script>
+        function redirigir(url) {
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

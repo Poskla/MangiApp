@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MangiApp</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-image: url(https://img.freepik.com/vector-gratis/fondo-puntos-gris-claro_78370-2583.jpg);
+        }
+
+        /* Contenedor del logo */
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; /* Espacio entre el logo y las categorías */
+            background-color: white;
+            font-family: 'Trebuchet MS';
+        }
+
+        /* Estilo para la imagen */
+        .logo {
+            width: 200px;
+            height: auto;
+        }
+
+        /* Estilo del texto debajo del logo */
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Menú de categorías */
+        .menu {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Estilo de las categorías */
+        .menu > li {
+            background-color: lightseagreen; /* Fondo por defecto en caso de no encontrar la imagen */
+            color: black;
+            padding: 10px;
+            cursor: pointer;
+            width: 500px;
+            height: 50px;
+            margin: 5px;
+            text-align: center;
+            text-shadow: 2px 2px 7px white;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 40px;
+            background-size: cover; /* Ajusta la imagen de fondo para cubrir el tamaño del botón */
+            background-position: center; /* Centra la imagen en el botón */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+        }
+
+        button{
+            background-color: gray; /* Fondo por defecto en caso de no encontrar la imagen */
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            width: 300px;
+            height: 60px;
+            margin: 5px;
+            text-align: center;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 25px;
+            background-size: cover; /* Ajusta la imagen de fondo para cubrir el tamaño del botón */
+            background-position: center; /* Centra la imagen en el botón */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+        }
+
+        #cat1{
+            background-image: url('https://resizer.glanacion.com/resizer/v2/provolet-TP6SDEW4YRBI5K5OFYZXZRVK5A.jpg?auth=eef0901fdb54418455d880a2216e0166f3c898aed9fbf0a53d9720fcc05b9a88&width=1920&height=1280&quality=70&smart=false&focal=774,674'); /* Ruta de la imagen de fondo */
+        }
+
+        #cat2{
+            background-image: url('https://www.themealdb.com/images/media/meals/vvtvtr1511180578.jpg'); /* Ruta de la imagen de fondo */
+        }
+
+        #cat3{
+            background-image: url('https://gazpachorestobar.pedidosonline.uy/wp-content/uploads/2023/01/fritas.jpg'); /* Ruta de la imagen de fondo */
+        }
+
+        #cat4{
+            background-image: url('https://www.themealdb.com/images/media/meals/ursuup1487348423.jpg'); /* Ruta de la imagen de fondo */
+        }
+
+        #cat5{
+            background-image: url('https://alicante.com.ar/wp-content/uploads/2022/06/507_receta-1200x900.jpg'); /* Ruta de la imagen de fondo */
+        }
+
+        /* Estilo de las subcategorías */
+        .submenu {
+            display: none;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            background-color: #333;
+            position: relative;
+            font-size: 30px;
+        }
+
+        .submenu li {
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .submenu li:hover {
+            background-color: blue;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <!-- Imagen logo -->
+            <a href="index.html" target="_blank">
+                <img src="Logo_Mangiapp.png" alt="Logo MangiApp" style="width:150px; height:auto;">
+                <!-- Texto logo -->
+                <div class="logo-text">MangiApp</div>
+            </a>
+        </div>     
+    </header>
+
+    <!-- Menú de categorías -->
+    <ul class="menu">
+        <li id="cat1">Entradas
+            <ul class="submenu">
+                <li>Tortilla de papa</li>
+                <li>Provoleta</li>
+                <li>Rabas</li>
+            </ul>
+        </li>
+        <li id="cat2">Pastas
+            <ul class="submenu">
+                <li>Tallarines</li>
+                <li>Ñoquis</li>
+                <li>Ravioles de pollo y verdura</li>
+            </ul>
+        </li>
+        <li id="cat3">Guarniciones
+            <ul class="submenu">
+                <li>Papas fritas</li>
+                <li>Ensalada</li>
+                <li>Puré</li>
+            </ul>
+        </li>
+        <li id="cat4">Carnes
+            <ul class="submenu">
+                <li>Asado</li>
+                <li>Bife de chorizo</li>
+                <li>Lomo a la mostaza</li>
+            </ul>
+        </li>
+        <li id="cat5">Postres
+            <ul class="submenu">
+                <li>Panqueques con dulce de leche</li>
+                <li>Ensalada de frutas</li>
+                <li>Volcán de chocolate</li>
+            </ul>
+        </li>
+    </ul>
+
+    <button onclick="redirigir('faq.html')">Preguntas frecuentes</button>
+    <button onclick="redirigir('nos.html')">Sobre nosotros</button>
+
+    <script>
+        function redirigir(url) {
+            window.open(url, '_blank');
+        }
+        
+        // Función para mostrar/ocultar el submenú
+        function toggleSubmenu(id) {
+            var submenu = document.querySelector(`#${id} .submenu`);
+            if (submenu.style.display === 'block') {
+                submenu.style.display = 'none'; // Ocultar submenú
+            } else {
+                submenu.style.display = 'block'; // Mostrar submenú
+            }
+        }
+
+        // Asociar la función toggleSubmenu a los clics en las categorías
+        document.getElementById('cat1').addEventListener('click', function() {
+            toggleSubmenu('cat1');
+        });
+        document.getElementById('cat2').addEventListener('click', function() {
+            toggleSubmenu('cat2');
+        });
+        document.getElementById('cat3').addEventListener('click', function() {
+            toggleSubmenu('cat3');
+        });
+        document.getElementById('cat4').addEventListener('click', function() {
+            toggleSubmenu('cat4');
+        });
+        document.getElementById('cat5').addEventListener('click', function() {
+            toggleSubmenu('cat5');
+        });
+    </script>
+</body>
+</html>
