@@ -1,0 +1,111 @@
+/* ENCABEZADO */
+
+.encabezado, .link-logo {
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    align-items: center;
+    color: black;
+    text-decoration: none;
+    width: 100%;
+}
+  
+.logo {
+    height: 100px;
+    margin: 7px;
+}
+  
+.mangiapp {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-style: italic;
+}
+
+/* MENU */
+
+.categoria-card {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .categoria-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .producto-btn {
+      color: black;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fefefe;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 12px 16px;
+      text-align: left;
+      transition: background-color 0.2s ease;
+    }
+    .producto-btn:hover {
+      background-color: #898686;
+      color: white;
+    }
+    .producto-btn img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-right: 12px;
+    }
+    .producto-texto {
+      flex-grow: 1;
+    }
+
+/* FAQ */
+
+.accordion{
+    --bs-accordion-active-bg: white;
+
+    --bs-accordion-active-color: black;
+    --bs-accordion-btn-focus-box-shadow:none;
+}
+
+.accordion-button.collapsed{
+    border: 1px solid black;
+}
+
+.accordion-item:has(.accordion-button:not(.collapsed)){
+    border: 2px solid black;
+    box-shadow: 5px 5px black;
+}
+
+.accordion-button:not(.collapsed) {
+    box-shadow: none;
+}
+#titulo{
+    border: 2px solid black;
+}
+
+/* CUERPO Y DETALLE */
+
+body, .card {
+    background-color: #FFF9F0;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; /*"Raleway", sans-serif;*/
+    font-size: 24px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+  
+.card-img-top {
+    border-radius: 15px;
+    margin-bottom: 20px;
+    height: auto;
+    max-width: 500px;
+}
+
+@media (min-width: 768px) {
+    .card-img-top, .categoria-card {
+      width: 100%;           
+    }
+}
