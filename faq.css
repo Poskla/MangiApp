@@ -27,3 +27,6 @@ body {
 #titulo{
     border: 2px solid black;
 }
+.navbar-custom{
+    background-color: #FFF9F0;
+}
