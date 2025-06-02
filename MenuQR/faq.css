@@ -30,3 +30,6 @@ body {
 .navbar-custom{
     background-color: #FFF9F0;
 }
+.botones{
+    --bs-buttons-font-family: 'Times New Roman', Times, serif;
+}
