@@ -8,9 +8,9 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-/* === ENDPOINTS === */
+//ENDPOINTS 
 
-// 🔹 Obtener todas las categorías
+// Obtener todas las categorías
 app.get('/categorias', async (req, res) => {
   try {
     const [categorias] = await db.promise().query('SELECT * FROM Category');
@@ -20,7 +20,7 @@ app.get('/categorias', async (req, res) => {
   }
 });
 
-// 🔹 Obtener todos los productos
+// Obtener todos los productos
 app.get('/items', async (req, res) => {
   try {
     const [items] = await db.promise().query('SELECT * FROM Item');
@@ -43,7 +43,7 @@ app.get('/item/:id', async (req, res) => {
 });
 
 
-// 🔹 Agregar nuevo producto
+// Agregar nuevo producto
 app.post('/items', async (req, res) => {
   const { denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id } = req.body;
   try {
@@ -58,7 +58,7 @@ app.post('/items', async (req, res) => {
   }
 });
 
-// 🔹 Modificar producto existente
+// Modificar producto existente
 app.put('/items/:id', async (req, res) => {
   const { denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id } = req.body;
   try {
@@ -73,7 +73,7 @@ app.put('/items/:id', async (req, res) => {
   }
 });
 
-// 🔹 Eliminar producto
+//Eliminar producto
 app.delete('/items/:id', async (req, res) => {
   try {
     await db.promise().query('DELETE FROM Item WHERE item_id = ?', [req.params.id]);
@@ -83,7 +83,7 @@ app.delete('/items/:id', async (req, res) => {
   }
 });
 
-// 🔹 Obtener categorías con sus productos (opcional extra)
+// 🔹 Obtener categorías con sus productos
 app.get('/categorias-con-items', async (req, res) => {
   try {
     const [categorias] = await db.promise().query('SELECT * FROM Category');
