@@ -1,0 +1,88 @@
+/* Reset básico de márgenes y padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilos generales */
+body, html {
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f0f2f5;
+}
+
+.container {
+  display: flex;
+  width: auto;
+  max-height: 80%; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+  flex: 1;
+  padding-left: 20px;
+  background-color: #FFF9F0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;  /* Centra los inputs y el botón */
+}
+
+.input-group {
+  margin-bottom: 15px;
+  width: 100%;  /* Asegura que los inputs no se desborden */
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;  /* Hace que los inputs ocupen todo el espacio disponible */
+  min-width: 300px;  /* Limita el tamaño máximo de los inputs */
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 50px;
+}
+
+.cuenta{
+  color: #FBBF24;
+}
+
+button.btn {
+  padding: 12px;
+  width: 250px;  /* El botón será más pequeño que los inputs */
+  background-color: #FBBF24;
+  color: black;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 20px;  /* Añade un poco de espacio entre el botón y los inputs */
+  align-self: center;  /* Asegura que el botón esté centrado en el contenedor */
+}
+
+
+button.btn:hover {
+  background-color: #F97316;
+  border: solid;
+  border-width: 1px;
+  border-color: #222222;
+}
+
+.logo-section {
+  flex: 1;
+  background-color: #FFF9F0;
+  display: flex;
+  justify-content: center;  /* Centra el logo horizontalmente */
+  align-items: center;      /* Centra el logo verticalmente */
+  max-width: 50%;
+}
+
+.logo-img {
+  max-height: 80%;  /* Ajusta el tamaño del logo */
+}
