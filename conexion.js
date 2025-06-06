@@ -4,7 +4,7 @@ let conexion = mysql.createConnection({
     host: "localhost",
     database: "mangiapp",
     user: "root",
-    password: "123456"
+    password: "123"
 });
 
 conexion.connect(function(err){
@@ -14,3 +14,4 @@ conexion.connect(function(err){
         console.log("conectado");
     }
 });
+conexion.end();
