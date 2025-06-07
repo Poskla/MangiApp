@@ -2,12 +2,6 @@
 package-lock.json
 package.json
 conexion.js
-# Ignorar node_modules
-node_modules/
-
-# Ignorar lock si querés evitar conflictos
-package-lock.json
-package.json
 
 # Ignorar VSCode settings locales
 .vscode/
