@@ -29,8 +29,6 @@ app.get('/items', async (req, res) => {
   }
 });
 
-
-
 app.get('/item/:id', async (req, res) => {
   try {
     const [rows] = await db.promise().query('SELECT * FROM Item WHERE item_id = ?', [req.params.id]);
@@ -40,7 +38,6 @@ app.get('/item/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Agregar nuevo producto
 app.post('/items', async (req, res) => {
