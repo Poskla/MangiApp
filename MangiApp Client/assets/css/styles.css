@@ -134,7 +134,7 @@ body, .card {
     border-radius: 15px;
     margin-bottom: 20px;
     height: auto;
-    max-width: 500px;
+    max-width: 280px;
 }
 
 @media (min-width: 768px) {
