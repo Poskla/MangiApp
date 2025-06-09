@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pedidos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container-pedidos">
+    <h1>Gestión de Pedidos</h1><br />
+
+    <!-- ✅ Solo visualización -->
+    <div class="top-controls">
+      <h3>Mesa:</h3>
+      <span id="valor-mesa">-</span>
+      <h3>Pedido:</h3>
+      <span id="valor-pedido">-</span>
+    </div>
+
+    <div class="flex-container">
+      <table id="pedido-table">
+        <thead>
+          <tr>
+            <th>Cantidad</th>
+            <th>Categoría</th>
+            <th>Plato</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div id="form-container">
+        <h3>Agregar Producto</h3><br>
+        <form id="form-pedido">
+          <label>
+            Cantidad:
+            <input type="number" id="input-cantidad" value="" min="1" required />
+          </label>
+
+          <label>
+            Categoría:
+            <select id="select-categoria" required>
+              <option value="">-- Selecciona categoría --</option>
+            </select>
+          </label>
+
+          <label>
+            Plato:
+            <select id="select-plato" required>
+              <option value="">-- Selecciona plato --</option>
+            </select>
+          </label>
+
+          <button type="submit">Agregar al pedido</button>
+          <button type="button" class="btn-cancelar">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="resumen" style="margin-top: 30px;">
+      <label><h4>Descuento
+        <input type="number" id="descuento" value="0" min="0" max="100"/> %</h4>
+      </label>
+
+      <h4>Subtotal: <span id="subtotal">0.00</span></h4><br>
+      <h3>Total: <span id="total">0.00</span></h3>
+
+      <button id="guardar-pedido">💾 Guardar Pedido</button>
+      <button id="imprimir-pedido">🖨️ Imprimir Pedido</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

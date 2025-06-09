@@ -1,153 +1,129 @@
-document.querySelector("form").addEventListener("submit", function(event) {
-  event.preventDefault();  // Prevenimos que el formulario se envíe
+document.addEventListener('DOMContentLoaded', () => {
+  const tablaBody = document.querySelector('#pedido-table tbody');
 
-  const email = document.querySelector("#email").value;
-  const password = document.querySelector("#password").value;
+  const formContainer = document.getElementById('form-container');
+  const formPedido = document.getElementById('form-pedido');
+  const selectCategoria = document.getElementById('select-categoria');
+  const selectPlato = document.getElementById('select-plato');
+  const inputCantidad = document.getElementById('input-cantidad');
+  const btnCancelar = document.getElementById('btn-cancelar');
 
-  if (email && password) {
-    alert("Login exitoso");
-  } else {
-    alert("Por favor, completa todos los campos");
-  }
-});
+  // Leer parámetros de la URL
+  const params = new URLSearchParams(window.location.search);
+  const pedidoId = params.get('pedido_id');
+  const mesa = params.get('mesa');
 
-let categorias = [];
-let platos = [];
+  // Mostrar en los spans
+  document.getElementById('valor-pedido').textContent = pedidoId || '-';
+  document.getElementById('valor-mesa').textContent = mesa || '-';
 
-document.addEventListener('DOMContentLoaded', async () => {
-  categorias = await fetch('/api/categorias').then(res => res.json());
-  platos = await fetch('/api/platos').then(res => res.json());
+  let categorias = [];
+  let items = [];
 
-  document.getElementById('agregar-fila').addEventListener('click', agregarFila);
-  document.getElementById('descuento').addEventListener('input', calcularTotales);
-  document.getElementById('guardar-pedido').addEventListener('click', guardarPedido);
+  async function cargarDatos() {
+    try {
+      const resCat = await fetch('http://localhost:3000/categorias');
+      categorias = await resCat.json();
 
-  agregarFila(); // inicia con una fila
-});
+      const resItems = await fetch('http://localhost:3000/items');
+      items = await resItems.json();
 
-function agregarFila() {
-  const tbody = document.querySelector('#pedido-table tbody');
-  const tr = document.createElement('tr');
+      // Cargar categorías en el select
+      selectCategoria.innerHTML = '<option value="">-- Selecciona categoría --</option>';
+      categorias.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.cat_id;
+        option.textContent = c.name;
+        selectCategoria.appendChild(option);
+      });
 
-  tr.innerHTML = `
-    <td><input type="number" class="cantidad" value="1" min="1"></td>
-    <td><select class="categoria"></select></td>
-    <td><select class="plato"></select></td>
-    <td class="precio">0</td>
-    <td class="subtotal">0</td>
-    <td><button class="eliminar">❌</button></td>
-  `;
-
-  tbody.appendChild(tr);
-
-  const catSelect = tr.querySelector('.categoria');
-  categorias.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.cat_id;
-    opt.textContent = c.denominacion;
-    catSelect.appendChild(opt);
-  });
-
-  const cantidadInput = tr.querySelector('.cantidad');
-  const platoSelect = tr.querySelector('.plato');
-
-  catSelect.addEventListener('change', () => {
-    actualizarPlatos(catSelect, platoSelect);
-  });
-
-  platoSelect.addEventListener('change', () => {
-    actualizarPrecio(tr, platoSelect);
-  });
-
-  cantidadInput.addEventListener('input', () => calcularFila(tr));
-  tr.querySelector('.eliminar').addEventListener('click', () => tr.remove());
-
-  catSelect.dispatchEvent(new Event('change'));
-}
-
-function actualizarPlatos(catSelect, platoSelect) {
-  const categoriaId = Number(catSelect.value);
-  platoSelect.innerHTML = '';
-
-  const platosFiltrados = platos.filter(p => p.cat_id === categoriaId);
-  platosFiltrados.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.item_id;
-    opt.textContent = p.denominacion;
-    opt.dataset.precio = p.precio;
-    platoSelect.appendChild(opt);
-  });
-
-  platoSelect.dispatchEvent(new Event('change'));
-}
-
-function actualizarPrecio(tr, platoSelect) {
-  const selected = platoSelect.options[platoSelect.selectedIndex];
-  const precio = parseFloat(selected.dataset.precio || 0);
-  tr.querySelector('.precio').textContent = precio.toFixed(2);
-  calcularFila(tr);
-}
-
-function calcularFila(tr) {
-  const cantidad = parseFloat(tr.querySelector('.cantidad').value) || 0;
-  const precio = parseFloat(tr.querySelector('.precio').textContent) || 0;
-  const subtotal = cantidad * precio;
-  tr.querySelector('.subtotal').textContent = subtotal.toFixed(2);
-  calcularTotales();
-}
-
-function calcularTotales() {
-  let subtotal = 0;
-  document.querySelectorAll('.subtotal').forEach(el => {
-    subtotal += parseFloat(el.textContent);
-  });
-
-  const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-  const total = subtotal - descuento;
-
-  document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-  document.getElementById('total').textContent = total.toFixed(2);
-}
-
-function guardarPedido() {
-  const mesa = parseInt(document.getElementById('mesa').value);
-  if (!mesa) {
-    alert('Por favor, ingresá el número de mesa');
-    return;
-  }
-
-  const items = [];
-  document.querySelectorAll('#pedido-table tbody tr').forEach(tr => {
-    const cantidad = parseFloat(tr.querySelector('.cantidad').value);
-    const platoId = parseInt(tr.querySelector('.plato').value);
-    const precio = parseFloat(tr.querySelector('.precio').textContent);
-
-    if (cantidad && platoId) {
-      items.push({ cantidad, platoId, precio });
+      selectPlato.innerHTML = '<option value="">-- Selecciona plato --</option>';
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      alert('No se pudieron cargar categorías o platos.');
     }
-  });
-
-  if (items.length === 0) {
-    alert('Debe haber al menos un plato en el pedido.');
-    return;
   }
 
-  const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-  const subtotal = parseFloat(document.getElementById('subtotal').textContent) || 0;
-  const total = subtotal - descuento;
+  // Cambiar platos según categoría
+  selectCategoria.addEventListener('change', () => {
+    const catId = selectCategoria.value;
+    const platosFiltrados = items.filter(item => item.cat_id == catId);
 
-  fetch('/api/pedidos', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mesa, descuento, total, items })
-  })
-    .then(res => res.json())
-    .then(data => {
-      alert('Pedido guardado con ID: ' + data.id);
-      location.reload();
-    })
-    .catch(err => {
-      console.error('Error al guardar el pedido:', err);
-      alert('Error al guardar el pedido.');
+    selectPlato.innerHTML = '<option value="">-- Selecciona plato --</option>';
+    platosFiltrados.forEach(plato => {
+      const option = document.createElement('option');
+      option.value = plato.item_id;
+      option.textContent = `${plato.denominacion} ($${plato.precio.toFixed(2)})`;
+      selectPlato.appendChild(option);
     });
-}
+  });
+
+  // Mostrar formulario directamente si hay datos cargados
+  cargarDatos();
+  formContainer.style.display = 'block';
+
+  // Cancelar formulario
+  btnCancelar.addEventListener('click', () => {
+    formPedido.reset();
+    formContainer.style.display = 'none';
+  });
+
+  // Manejar el envío del formulario
+  formPedido.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const cantidad = parseInt(inputCantidad.value);
+    const catId = selectCategoria.value;
+    const platoId = selectPlato.value;
+
+    if (!cantidad || !catId || !platoId) {
+      alert('Por favor, completa todos los campos');
+      return;
+    }
+
+    const categoria = categorias.find(c => c.cat_id == catId);
+    const plato = items.find(i => i.item_id == platoId);
+    const subtotal = plato.precio * cantidad;
+
+    // Agregar fila a la tabla
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${cantidad}</td>
+      <td>${categoria.name}</td>
+      <td>${plato.denominacion}</td>
+      <td>$${plato.precio.toFixed(2)}</td>
+      <td>$${subtotal.toFixed(2)}</td>
+      <td><button class="eliminar">❌</button></td>
+    `;
+    tablaBody.appendChild(tr);
+
+    actualizarTotales();
+
+    // Botón eliminar
+    tr.querySelector('.eliminar').addEventListener('click', () => {
+      tr.remove();
+      actualizarTotales();
+    });
+
+    formPedido.reset();
+    // formContainer.style.display = 'none'; // opcional si querés ocultarlo
+  });
+
+  function actualizarTotales() {
+    const filas = document.querySelectorAll('#pedido-table tbody tr');
+    let total = 0;
+
+    filas.forEach(fila => {
+      const subtotal = parseFloat(fila.children[4].textContent.replace('$', ''));
+      total += subtotal;
+    });
+
+    const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+    const totalFinal = total - descuento;
+
+    document.getElementById('subtotal').textContent = total.toFixed(2);
+    document.getElementById('total').textContent = totalFinal.toFixed(2);
+  }
+
+  document.getElementById('descuento').addEventListener('input', actualizarTotales);
+});

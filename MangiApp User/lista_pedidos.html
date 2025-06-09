@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lista de Pedidos</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="container-pedidos">
+  <h1>Lista de Pedidos</h1>
+
+  <div class="flex-container">
+  <table id="pedido-table">
+    <thead>
+      <tr>
+        <th>Número de Pedido</th>
+        <th>Total</th>
+        <th>Número de Mesa</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Filas generadas dinámicamente -->
+    </tbody>
+  </table>
+  </div>
+</div>
+  <script>
+    // Pedidos de prueba
+    const pedidos = [
+      { id: 1, total: 150.00, mesa: 3, estado: 'Pendiente' },
+      { id: 2, total: 230.50, mesa: 1, estado: 'En preparación' },
+      { id: 3, total: 80.00, mesa: 5, estado: 'Entregado' },
+    ];
+
+    const tbody = document.querySelector('#pedido-table tbody');
+
+    function renderPedidos() {
+      tbody.innerHTML = '';
+
+      if (pedidos.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="5" style="text-align:center; font-style: italic; color: #666;">No hay pedidos disponibles</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      pedidos.forEach(pedido => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${pedido.id}</td>
+          <td>$${pedido.total.toFixed(2)}</td>
+          <td>${pedido.mesa}</td>
+          <td>${pedido.estado}</td>
+          <td>
+            <button class="btn-editar" data-id="${pedido.id}">Editar</button>
+            <button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    tbody.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-editar')) {
+        const id = e.target.getAttribute('data-id');
+        // Redirigir a edicion_pedido.html con parámetro id
+        window.location.href = `edicion_pedido.html?pedido_id=${id}&mesa=${pedido.mesa}`;
+      } else if (e.target.classList.contains('btn-cancelar')) {
+        const id = e.target.getAttribute('data-id');
+        const confirmado = confirm(`¿Seguro que quieres cancelar el pedido #${id}?`);
+        if (confirmado) {
+          alert(`Pedido #${id} cancelado`);
+          // Aquí podrías implementar la eliminación o actualización real
+        }
+      }
+    });
+
+    renderPedidos();
+  </script>
+
+</body>
+</html>
