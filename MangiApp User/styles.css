@@ -13,7 +13,10 @@ body, html {
   justify-content: center;
   align-items: center;
   background: #f0f2f5;
+  
 }
+
+/* LOGIN */
 
 .container {
   display: flex;
@@ -73,6 +76,7 @@ button.btn:hover {
   border-width: 1px;
   border-color: #222222;
 }
+ /* ENCABEZADO */
 
 .logo-section {
   flex: 1;
@@ -85,4 +89,88 @@ button.btn:hover {
 
 .logo-img {
   max-height: 80%;  /* Ajusta el tamaño del logo */
+}
+
+/* ABM PEDIDOS */
+
+.container-pedidos {
+  display: flex;
+  gap: 20px;               /* espacio entre tabla y resumen */
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  max-width: 1200px;
+  margin: 0 auto;          /* centrar en la página */
+  flex-wrap: wrap;         /* para que en pantallas pequeñas baje el resumen debajo */
+}
+
+table {
+  flex: 1 1 65%;            /* que crezca, pero ocupe aprox 65% */
+  min-width: 300px;         /* no se achique demasiado */
+  overflow-x: auto;         /* que pueda hacer scroll horizontal si es muy pequeña la pantalla */
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #ffe066;
+}
+
+tr:nth-child(even) {
+  background-color: #fffbea;
+}
+
+.resumen label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.resumen input[type="number"] {
+  width: 80px;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Botones */
+button {
+  background-color: #fbc02d;
+  font-weight: bold;
+  padding: 12px 0;
+  border-radius: 25px;
+  width: auto;
+  transition: background-color 0.3s;
+}
+
+#agregar-fila {
+  margin-left: auto;
+  margin-right: 5px;
+  min-width: 25%;
+}
+
+button:hover {
+ background-color: #fdd835;
+}
+
+.resumen {
+  flex: 0 0 300px;          /* ancho fijo para el resumen */
+  background-color: #fff59d;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }

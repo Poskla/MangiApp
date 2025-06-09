@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
@@ -91,7 +90,8 @@ app.get('/categorias-con-items', async (req, res) => {
 
     const result = categorias.map(cat => ({
       ...cat,
-      items: items.filter(item => item.cat_id === cat.cat_id)
+      items: items
+      .filter(item => item.cat_id === cat.cat_id)
     }));
 
     res.json(result);
