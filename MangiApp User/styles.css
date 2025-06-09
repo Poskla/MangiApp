@@ -69,7 +69,6 @@ button.btn {
   align-self: center;  /* Asegura que el botón esté centrado en el contenedor */
 }
 
-
 button.btn:hover {
   background-color: #F97316;
   border: solid;
