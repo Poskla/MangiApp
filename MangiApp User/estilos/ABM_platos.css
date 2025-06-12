@@ -1,0 +1,32 @@
+body {
+    background-color: #FFF9F0;
+    font-family:"Raleway", sans-serif;
+}
+.accordion{
+    --bs-accordion-active-bg: white;
+
+    --bs-accordion-active-color: black;
+    --bs-accordion-btn-focus-box-shadow:none;
+}
+
+.accordion-button.collapsed{
+    border: 1px solid black;
+}
+
+.accordion-item:has(.accordion-button:not(.collapsed)){
+    border: 2px solid black;
+    box-shadow: 5px 5px black;
+}
+
+.accordion-button:not(.collapsed) {
+    box-shadow: none;
+}
+#titulo{
+    border: 2px solid black;
+}
+.navbar-custom{
+    background-color: #FFF9F0;
+}
+.botones{
+    --bs-buttons-font-family: 'Times New Roman', Times, serif;
+}
