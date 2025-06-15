@@ -80,6 +80,39 @@ a {
 
 /* SOMOS */
 
+.info-container {
+  background-color: #fff;
+  border-radius: 0.8rem;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.info-container h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+
+.info-container p {
+  font-size: 1.2rem;
+  color: #222;
+  margin-bottom: 0;
+}
+
+.info-container h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.info-container .mb-2 {
+  margin-bottom: 1rem;
+}
+
+/*
+
 .custom-container {
       max-width: 500px;
       margin: 2rem auto;
@@ -118,6 +151,7 @@ a {
       font-weight: bold;
       color: #444;
     }
+*/
 
 /* CUERPO Y DETALLE */
 
