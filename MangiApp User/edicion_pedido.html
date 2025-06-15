@@ -10,10 +10,10 @@
   <div class="container-pedidos">
     <h1>Gestión de Pedidos</h1><br />
 
-    <!-- ✅ Solo visualización -->
     <div class="top-controls">
       <h3>Mesa:</h3>
-      <span id="valor-mesa">-</span>
+      <span id="valor-mesa" style="display: none;">-</span>
+      <input type="number" id="input-mesa" min="1" style="display: none;" />
       <h3>Pedido:</h3>
       <span id="valor-pedido">-</span>
     </div>
@@ -56,7 +56,6 @@
           </label>
 
           <button type="submit">Agregar al pedido</button>
-          <button type="button" class="btn-cancelar">Cancelar</button>
         </form>
       </div>
     </div>
@@ -74,6 +73,6 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script_pedidos.js"></script>
 </body>
 </html>

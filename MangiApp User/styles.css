@@ -195,7 +195,7 @@ button {
 }
 
 button:hover {
- background-color: #fdd835;
+ background-color: #F97316;
 }
 
 .resumen {
@@ -211,14 +211,34 @@ button:hover {
 
 /* LISTA PEDIDOS */
 
+  .btn-agregar:hover {
+    background-color:#F97316;
+  }
+
+  .acciones-btns {
+  display: flex;
+  justify-content: center;
+  gap: 8px; /* espacio entre botones */
+  }
+
   .btn-editar {
       background-color: #4caf50;
       color: white;
-    }
-    .btn-cancelar {
+      white-space: nowrap;
+  }
+  
+  .btn-cancelar {
       background-color: #e53935;
       color: white;
-    }
+      white-space: nowrap;
+  }
+
+  .header-pedidos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  }
 
 *,
 *::before,

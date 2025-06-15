@@ -4,36 +4,77 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lista de Pedidos</title>
-    <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<div class="container-pedidos">
-  <h1>Lista de Pedidos</h1>
+  <div class="container-pedidos">
 
-  <div class="flex-container">
-  <table id="pedido-table">
-    <thead>
-      <tr>
-        <th>Número de Pedido</th>
-        <th>Total</th>
-        <th>Número de Mesa</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Filas generadas dinámicamente -->
-    </tbody>
-  </table>
+    <div class="header-pedidos">
+      <h1>Lista de Pedidos</h1>
+     <button id="btn-agregar" class="btn-agregar">Agregar Pedido</button>
+    </div>
+
+
+    <div class="flex-container">
+      <table id="pedido-table">
+        <thead>
+          <tr>
+            <th>Número de Pedido</th>
+            <th>Total</th>
+            <th>Número de Mesa</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filas generadas dinámicamente -->
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
+
   <script>
-    // Pedidos de prueba
-    const pedidos = [
-      { id: 1, total: 150.00, mesa: 3, estado: 'Pendiente' },
-      { id: 2, total: 230.50, mesa: 1, estado: 'En preparación' },
-      { id: 3, total: 80.00, mesa: 5, estado: 'Entregado' },
-    ];
+    async function obtenerPedidos() {
+  try {
+    const res = await fetch('http://localhost:3000/orders');
+    if (!res.ok) throw new Error('Error al obtener pedidos');
+    const pedidos = await res.json();
+    renderPedidos(pedidos);
+  } catch (error) {
+    console.error(error);
+    alert('No se pudieron cargar los pedidos');
+  }
+}
+
+function renderPedidos(pedidos) {
+  tbody.innerHTML = '';
+
+  if (pedidos.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="5" style="text-align:center; font-style: italic; color: #666;">No hay pedidos disponibles</td>`;
+    tbody.appendChild(tr);
+    return;
+  }
+
+  pedidos.forEach(pedido => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${pedido.id}</td>
+      <td>$${pedido.total.toFixed(2)}</td>
+      <td>${pedido.mesa}</td>
+      <td>${pedido.estado}</td>
+      <td>
+        <div class="acciones-btns">
+          <button class="btn-editar" data-id="${pedido.id}">Editar</button>
+          <button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+obtenerPedidos();
 
     const tbody = document.querySelector('#pedido-table tbody');
 
@@ -55,8 +96,10 @@
           <td>${pedido.mesa}</td>
           <td>${pedido.estado}</td>
           <td>
-            <button class="btn-editar" data-id="${pedido.id}">Editar</button>
-            <button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button>
+            <div class="acciones-btns">
+              <button class="btn-editar" data-id="${pedido.id}">Editar</button>
+              <button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -66,7 +109,7 @@
     tbody.addEventListener('click', (e) => {
       if (e.target.classList.contains('btn-editar')) {
         const id = e.target.getAttribute('data-id');
-        // Redirigir a edicion_pedido.html con parámetro id
+        const pedido = pedidos.find(p => p.id == id);
         window.location.href = `edicion_pedido.html?pedido_id=${id}&mesa=${pedido.mesa}`;
       } else if (e.target.classList.contains('btn-cancelar')) {
         const id = e.target.getAttribute('data-id');
@@ -78,8 +121,11 @@
       }
     });
 
+    document.getElementById('btn-agregar').addEventListener('click', () => {
+      window.location.href = 'edicion_pedido.html';
+    });
+
     renderPedidos();
   </script>
-
 </body>
 </html>
