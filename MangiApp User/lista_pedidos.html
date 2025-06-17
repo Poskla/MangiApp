@@ -34,98 +34,85 @@
   </div>
 
   <script>
-    async function obtenerPedidos() {
-  try {
-    const res = await fetch('http://localhost:3000/orders');
-    if (!res.ok) throw new Error('Error al obtener pedidos');
-    const pedidos = await res.json();
-    renderPedidos(pedidos);
-  } catch (error) {
-    console.error(error);
-    alert('No se pudieron cargar los pedidos');
-  }
-}
+  const tbody = document.querySelector('#pedido-table tbody');
+  let pedidos = []; // ✅ Variable global para mantener los pedidos
 
-function renderPedidos(pedidos) {
-  tbody.innerHTML = '';
-
-  if (pedidos.length === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="5" style="text-align:center; font-style: italic; color: #666;">No hay pedidos disponibles</td>`;
-    tbody.appendChild(tr);
-    return;
+  async function obtenerPedidos() {
+    try {
+      const res = await fetch('http://localhost:3000/orders');
+      if (!res.ok) throw new Error('Error al obtener pedidos');
+      pedidos = await res.json(); // ✅ Guardamos la respuesta en la variable global
+      renderPedidos(pedidos);
+    } catch (error) {
+      console.error(error);
+      alert('No se pudieron cargar los pedidos');
+    }
   }
 
-  pedidos.forEach(pedido => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${pedido.id}</td>
-      <td>$${pedido.total.toFixed(2)}</td>
-      <td>${pedido.mesa}</td>
-      <td>${pedido.estado}</td>
-      <td>
-        <div class="acciones-btns">
-          <button class="btn-editar" data-id="${pedido.id}">Editar</button>
-          <button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+  function renderPedidos(pedidos) {
+    tbody.innerHTML = '';
 
-obtenerPedidos();
-
-    const tbody = document.querySelector('#pedido-table tbody');
-
-    function renderPedidos() {
-      tbody.innerHTML = '';
-
-      if (pedidos.length === 0) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="5" style="text-align:center; font-style: italic; color: #666;">No hay pedidos disponibles</td>`;
-        tbody.appendChild(tr);
-        return;
-      }
-
-      pedidos.forEach(pedido => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${pedido.id}</td>
-          <td>$${pedido.total.toFixed(2)}</td>
-          <td>${pedido.mesa}</td>
-          <td>${pedido.estado}</td>
-          <td>
-            <div class="acciones-btns">
-              <button class="btn-editar" data-id="${pedido.id}">Editar</button>
-              <button class="btn-cancelar" data-id="${pedido.id}">Cancelar</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+    if (pedidos.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="5" style="text-align:center; font-style: italic; color: #666;">No hay pedidos disponibles</td>`;
+      tbody.appendChild(tr);
+      return;
     }
 
+    pedidos.forEach(pedido => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${pedido.order_id}</td>
+        <td>$${Number(pedido.total).toFixed(2)}</td>
+        <td>${pedido.mesa}</td>
+        <td>${pedido.estado}</td>
+        <td>
+          <div class="acciones-btns">
+            <button class="btn-editar" data-id="${pedido.order_id}">Editar</button>
+            <button class="btn-cancelar" data-id="${pedido.order_id}">Cancelar</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Delegación de eventos para los botones
     tbody.addEventListener('click', (e) => {
-      if (e.target.classList.contains('btn-editar')) {
-        const id = e.target.getAttribute('data-id');
-        const pedido = pedidos.find(p => p.id == id);
-        window.location.href = `edicion_pedido.html?pedido_id=${id}&mesa=${pedido.mesa}`;
-      } else if (e.target.classList.contains('btn-cancelar')) {
-        const id = e.target.getAttribute('data-id');
-        const confirmado = confirm(`¿Seguro que quieres cancelar el pedido #${id}?`);
-        if (confirmado) {
+    if (e.target.classList.contains('btn-editar')) {
+      const id = e.target.getAttribute('data-id');
+      const pedido = pedidos.find(p => p.order_id == id);
+      window.location.href = `edicion_pedido.html?order_id=${id}&mesa=${pedido.mesa}`;
+    } else if (e.target.classList.contains('btn-cancelar')) {
+      const id = e.target.getAttribute('data-id');
+      const confirmado = confirm(`¿Seguro que quieres cancelar el pedido #${id}?`);
+      console.log(id)
+      if (confirmado) {
+        fetch(`http://localhost:3000/orders/${id}/cancel`, {
+          method: 'PUT'
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al cancelar pedido');
+          return res.json();
+        })
+        .then(() => {
           alert(`Pedido #${id} cancelado`);
-          // Aquí podrías implementar la eliminación o actualización real
-        }
+          obtenerPedidos(); // 🔄 volver a cargar pedidos
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Hubo un error al cancelar el pedido.');
+        });
       }
-    });
+    }
+  }); 
 
-    document.getElementById('btn-agregar').addEventListener('click', () => {
-      window.location.href = 'edicion_pedido.html';
-    });
+  document.getElementById('btn-agregar').addEventListener('click', () => {
+    window.location.href = 'edicion_pedido.html';
+  });
 
-    renderPedidos();
-  </script>
+  // Ejecutar al cargar
+  obtenerPedidos();
+</script>
 </body>
 </html>

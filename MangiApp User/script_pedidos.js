@@ -174,7 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('guardar-pedido').addEventListener('click', async () => {
     const inputMesa = document.getElementById('input-mesa');
     const valorMesa = document.getElementById('valor-mesa').textContent;
-    const mesa = pedidoId ? parseInt(valorMesaSpan.textContent) : parseInt(inputMesa.value);
+    const mesa = pedidoId
+      ? parseInt(document.getElementById('valor-mesa').textContent)
+      : parseInt(document.getElementById('input-mesa').value);
 
     if (!mesa || isNaN(mesa)) {
       alert('Ingresá un número de mesa válido');
@@ -222,5 +224,3 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
       alert('Ocurrió un error al guardar el pedido');
     }
 });
-
-console.log(req.body);
