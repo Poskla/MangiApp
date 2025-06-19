@@ -2,6 +2,12 @@ const express = require("express")
 
 const app = express();
 
+const mainRouter = require('./src/routes/main.router');
+app.use(mainRouter);
+
+app.use(require('./src/routes/platos.router'));
+
+
 let mysql = require("mysql");
 
 let conexion = mysql.createConnection({
@@ -11,9 +17,11 @@ let conexion = mysql.createConnection({
     password: "123"
 });
 
+app.use(express.static('public'));
+
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
-//const path = require('path');
+const path = require('path');
 
 //const path2 = require('path');
 //const ruta = path.join(__dirname,'..','..','MangiApp User','public');
@@ -21,6 +29,7 @@ app.use(express.urlencoded({extended:false}));
 //const ruta2 = path2.join(__dirname,'..','..','MangiApp User','views');
 
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 app.get("/", function(req, res){
     res.render("ABM_platos")
@@ -48,7 +57,7 @@ app.post("/cargar", function(req,res){
     console.log(datos);
 });
 
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.listen(3000, function(){
     console.log("El servidor USER esta funcionando http://localhost:3000")
