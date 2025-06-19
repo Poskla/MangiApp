@@ -1,5 +1,7 @@
+const path = require("path");
+
 const index = (req, res) => {
-    res.send("hola mundo!!");
+    res.render("index");
 };
 
 module.exports = {

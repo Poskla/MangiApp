@@ -5,12 +5,13 @@ const app = express();
 const mainRouter = require('./src/routes/main.router');
 app.use(mainRouter);
 
-app.use(require('./src/routes/platos.router'));
+app.use("ABM_platos", require('./src/routes/platos.router'));
 
 
-let mysql = require("mysql");
 
-let conexion = mysql.createConnection({
+let mysql = require("mysql2/promise");
+
+let pool = mysql.createPool({
     host: "localhost",
     database: "mangiapp",
     user: "root",
@@ -31,11 +32,15 @@ const path = require('path');
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-app.get("/", function(req, res){
-    res.render("ABM_platos")
-});
+// app.get("/ABM_platos", function(req, res){
+//     res.render("ABM_platos")
+// });
 
-app.post("/cargar", function(req,res){
+app.get("/", (req, res) => res.render("index"));
+app.get("/index", (req, res) => res.render("index"));
+app.get("/ABM_platos", (req, res) => res.render("ABM_platos"));
+
+app.post("/cargar",async function(req,res){
     const datos = req.body;
 
     let nombre = datos.nomb;
@@ -45,17 +50,30 @@ app.post("/cargar", function(req,res){
 
     let cargar = "INSERT INTO item (denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id) VALUES('"+nombre +"','"+descripcion +"',"+precio +",NULL, 0 , 1 ,"+categoria +")";
 
-    conexion.query(cargar, function(error){
-        if(error){
-            throw error;
 
-        }else{
-            console.log("Datos guardados !!!")
-        }
-    })
+     try {
+           const connection = await pool.getConnection();
+           await connection.query(cargar, [nombre, descripcion, precio, categoria]);
+           console.log("Datos guardados !!!");
+           res.status(200).send("Datos guardados !!!");
+       } catch (error) {
+           console.error("Error al guardar los datos:", error);
+           res.status(500).send("Error al guardar los datos");
+       }
 
-    console.log(datos);
+    // conexion.query(cargar, function(error){
+    //     if(error){
+    //         throw error;
+
+    //     }else{
+    //         console.log("Datos guardados !!!")
+    //     }
+    // })
+
+    // console.log(datos);
 });
+
+
 
 app.use(express.static(path.join(__dirname, "public")));
 

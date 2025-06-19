@@ -19,15 +19,15 @@ const index = async (req,res) => {
     }
 }
 
-const show = (req,res) => {
-    fetch(" " + req.params.id)
-    .then((res) => res.join()
-.then((platos) => res.json(platos)));
-};
+// const show = (req,res) => {
+//     fetch(" " + req.params.id)
+//     .then((res) => res.join()
+// .then((platos) => res.json(platos)));
+// };
 
 module.exports = {
     create,
     store,
     index,
-    show
+    //show
 }
