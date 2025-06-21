@@ -103,10 +103,23 @@ app.get('/categorias-con-items', async (req, res) => {
 app.put('/orders/:id/cancel', async (req, res) => {
   try {
     await db.promise().query(
-      'UPDATE `order` SET estado = ? WHERE order_id = ?',
+      'UPDATE \`order\` SET estado = ? WHERE order_id = ?',
       ['Cancelado', req.params.id]
     );
     res.json({ message: 'Pedido cancelado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cerrar un pedido (actualizar estado a "Cerrado")
+app.put('/orders/:id/close', async (req, res) => {
+  try {
+    await db.promise().query(
+      'UPDATE \`order\` SET estado = ? WHERE order_id = ?',
+      ['Cerrado', req.params.id]
+    );
+    res.json({ message: 'Pedido cerrado' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -119,6 +132,7 @@ app.get('/orders', async (req, res) => {
       SELECT 
         o.order_id,
         o.mesa,
+        o.descuento,
         CAST(o.total AS DECIMAL(8,2)) AS total,
         o.estado
       FROM \`order\` o
@@ -129,6 +143,32 @@ app.get('/orders', async (req, res) => {
   } catch (err) {
     console.error('Error al obtener pedidos:', err.sqlMessage || err.message);
     res.status(500).json({ error: 'Error al obtener pedidos' });
+    }
+  });
+
+// Obtener detalles de un pedido específico
+app.get('/orders/:id', async (req, res) => {
+  const orderId = parseInt(req.params.id);
+  if (isNaN(orderId)) return res.status(400).json({ error: 'ID inválido' });
+
+  try {
+    const [rows] = await db.promise().query(`
+      SELECT 
+        od.cant, 
+        i.item_id, 
+        i.denominacion, 
+        i.precio, 
+        c.denominacion AS categoria
+      FROM \`orderdetail\` od
+      LEFT JOIN \`item\` i ON od.item_id = i.item_id
+      LEFT JOIN \`category\` c ON i.cat_id = c.cat_id
+      WHERE od.order_id = ?
+    `, [orderId]);
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Error al obtener detalles del pedido:', err.message);
+    res.status(500).json({ error: 'Error al obtener detalles del pedido' });
   }
 });
 
@@ -156,7 +196,7 @@ app.post('/orders', async (req, res) => {
     // Insertar detalles en orderdetail
     for (const item of items) {
       await db.promise().query(
-        `INSERT INTO orderdetail (order_id, item_id, cant)
+        `INSERT INTO \`orderdetail\` (order_id, item_id, cant)
          VALUES (?, ?, ?)`,
         [orderId, item.item_id, item.cant]
       );

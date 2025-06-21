@@ -8,28 +8,98 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectItem = document.getElementById('select-plato');
   const inputCantidad = document.getElementById('input-cantidad');
 
+  document.getElementById('btn-index').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+  document.getElementById('btn-pedidos').addEventListener('click', () => {
+    window.location.href = 'lista_pedidos.html';
+  });
+
   // Leer parámetros de la URL
-  const params = new URLSearchParams(window.location.search);
-  pedidoId = params.get('order_id');
-  const mesa = params.get('mesa');
+    const params = new URLSearchParams(window.location.search);
+    pedidoId = params.get('order_id');
+    const mesa = params.get('mesa');
+    const inputMesa = document.getElementById('input-mesa');
+    const valorMesaSpan = document.getElementById('valor-mesa');
+    const descuentoInput = document.getElementById('descuento');
+    
+    // Mostrar en los spans
+    document.getElementById('valor-pedido').textContent = pedidoId || '-';
+    document.getElementById('valor-mesa').textContent = mesa || '-';
 
-  const inputMesa = document.getElementById('input-mesa');
-  const valorMesaSpan = document.getElementById('valor-mesa');
+    if (pedidoId) {
+      // Pedido existente: mostrar solo el span con la mesa
+      valorMesaSpan.style.display = 'inline';
+      inputMesa.style.display = 'none';
+    } else {
+      // Pedido nuevo: mostrar input para ingresar mesa
+      valorMesaSpan.style.display = 'none';
+      inputMesa.style.display = 'inline-block';
+    }
 
-  if (pedidoId) {
-    // Pedido existente: mostrar solo el span con la mesa
-    valorMesaSpan.style.display = 'inline';
-    inputMesa.style.display = 'none';
-  } else {
-    // Pedido nuevo: mostrar input para ingresar mesa
-    valorMesaSpan.style.display = 'none';
-    inputMesa.style.display = 'inline-block';
+  async function cargarDetallesPedido(pedidoId) {
+  try {
+    // Obtener solo detalles de ítems (como tu backend lo devuelve)
+    const resDetalle = await fetch(`http://localhost:3000/orders/${pedidoId}`);
+    const detalles = await resDetalle.json();
+
+    // Obtener TODOS los pedidos para encontrar el descuento
+    const resPedidos = await fetch('http://localhost:3000/orders');
+    const pedidos = await resPedidos.json();
+
+    // Buscar el pedido actual en la lista para obtener el descuento
+    const pedido = pedidos.find(p => p.order_id == pedidoId);
+
+    // Setear el descuento en el input si existe
+    const descuentoInput = document.getElementById('descuento');
+    if (descuentoInput && pedido && pedido.descuento != null) {
+      descuentoInput.value = pedido.descuento;
+    }
+
+    // Limpiar la tabla
+    const tablaBody = document.querySelector('#pedido-table tbody');
+    tablaBody.innerHTML = '';
+
+    // Cargar detalles de ítems en tabla
+    detalles.forEach(det => {
+      const subtotal = det.precio * det.cant;
+
+      const tr = document.createElement('tr');
+      tr.dataset.itemId = det.item_id;
+      tr.dataset.cantidad = det.cant;
+      tr.dataset.precio = det.precio;
+
+      tr.innerHTML = `
+        <td>${det.cant}</td>
+        <td>${det.categoria}</td>
+        <td>${det.denominacion}</td>
+        <td>$${parseFloat(det.precio).toFixed(2)}</td>
+        <td>$${subtotal.toFixed(2)}</td>
+        <td><button class="eliminar">❌</button></td>
+      `;
+
+      tr.querySelector('.eliminar').addEventListener('click', () => {
+        tr.remove();
+        actualizarTotales();
+      });
+
+      tablaBody.appendChild(tr);
+    });
+
+    actualizarTotales();
+
+  } catch (err) {
+    console.error('Error al cargar detalles del pedido:', err);
+    alert('No se pudieron cargar los ítems del pedido.');
+    }
   }
 
-
-  // Mostrar en los spans
-  document.getElementById('valor-pedido').textContent = pedidoId || '-';
-  document.getElementById('valor-mesa').textContent = mesa || '-';
+  // Mostrar formulario directamente si hay datos cargados
+  cargarDatos().then(() => {
+    if (pedidoId) {
+      cargarDetallesPedido(pedidoId);
+    }
+  });
 
   let categorias = [];
   let items = [];
@@ -74,8 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Mostrar formulario directamente si hay datos cargados
-  cargarDatos();
   formContainer.style.display = 'block';
 
   // Manejar el envío del formulario
@@ -163,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Listener para input descuento si existe
-  const descuentoInput = document.getElementById('descuento');
   if (descuentoInput) {
     descuentoInput.addEventListener('input', actualizarTotales);
   } else {

@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container-pedidos">
-
+  <div class="container-pedidos"> 
+    <button id="btn-index" class="btn-index">🏠</button><br><br>
     <div class="header-pedidos">
       <h1>Lista de Pedidos</h1>
      <button id="btn-agregar" class="btn-agregar">Agregar Pedido</button>
@@ -69,6 +69,7 @@
         <td>
           <div class="acciones-btns">
             <button class="btn-editar" data-id="${pedido.order_id}">Editar</button>
+            <button class="btn-cerrar" data-id="${pedido.order_id}">Cerrar</button>
             <button class="btn-cancelar" data-id="${pedido.order_id}">Cancelar</button>
           </div>
         </td>
@@ -104,11 +105,36 @@
           alert('Hubo un error al cancelar el pedido.');
         });
       }
+      } else if (e.target.classList.contains('btn-cerrar')) {
+      const id = e.target.getAttribute('data-id');
+      const confirmado = confirm(`¿Seguro que quieres cerrar el pedido #${id}?`);
+      console.log(id)
+      if (confirmado) {
+        fetch(`http://localhost:3000/orders/${id}/close`, {
+          method: 'PUT'
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al cerrar el pedido');
+          return res.json();
+        })
+        .then(() => {
+          alert(`Pedido #${id} cerrado.`);
+          obtenerPedidos(); // 🔄 volver a cargar pedidos
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Hubo un error al cerrar el pedido.');
+        });
+      }
     }
   }); 
 
   document.getElementById('btn-agregar').addEventListener('click', () => {
     window.location.href = 'edicion_pedido.html';
+  });
+
+  document.getElementById('btn-index').addEventListener('click', () => {
+    window.location.href = 'index.html';
   });
 
   // Ejecutar al cargar

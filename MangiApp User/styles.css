@@ -118,7 +118,7 @@ button.btn:hover {
     }
     #pedido-table {
   font-size: 18px;              /* letra más grande */
-  border-collapse: separate;   /* para que funcione border-radius */
+  border-collapse: collapse;   /* para que funcione border-radius */
   border-spacing: 0;
   border-radius: 12px;          /* bordes redondeados */
   overflow: hidden;             /* para que el redondeo funcione en la tabla */
@@ -211,17 +211,13 @@ button:hover {
 
 /* LISTA PEDIDOS */
 
-  .btn-agregar:hover {
-    background-color:#F97316;
-  }
-
   .acciones-btns {
   display: flex;
   justify-content: center;
   gap: 8px; /* espacio entre botones */
   }
 
-  .btn-editar {
+  .btn-cerrar {
       background-color: #4caf50;
       color: white;
       white-space: nowrap;
