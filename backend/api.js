@@ -210,6 +210,44 @@ app.post('/orders', async (req, res) => {
   }
 });
 
+// Actualizar pedido existente
+app.put('/orders/:id', async (req, res) => {
+  const orderId = req.params.id;
+  const { mesa, descuento, estado, items } = req.body;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'El pedido debe incluir items' });
+  }
+
+  try {
+    // Calcular subtotal y total
+    const subtotal = items.reduce((sum, i) => sum + (i.precio * i.cant), 0);
+    const total = subtotal - (subtotal * descuento / 100);
+
+    // 1. Actualizar la tabla `order`
+    await db.promise().query(
+      'UPDATE \`order\` SET mesa = ?, descuento = ?, subtotal = ?, total = ? WHERE order_id = ?',
+      [mesa, descuento, subtotal, total, orderId]
+    );
+
+    // 2. Eliminar los ítems anteriores
+    await db.promise().query('DELETE FROM \`orderdetail\` WHERE order_id = ?', [orderId]);
+
+    // 3. Insertar los nuevos ítems
+    for (const item of items) {
+      await db.promise().query(
+        'INSERT INTO \`orderdetail\` (order_id, item_id, cant) VALUES (?, ?, ?)',
+        [orderId, item.item_id, item.cant]
+      );
+    }
+
+    res.status(200).json({ message: 'Pedido actualizado correctamente' });
+  } catch (err) {
+    console.error('Error al actualizar pedido:', err);
+    res.status(500).json({ message: 'Error actualizando pedido' });
+  }
+});
+
 /* === SERVIDOR === */
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

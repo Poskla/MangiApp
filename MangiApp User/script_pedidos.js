@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectItem = document.getElementById('select-plato');
   const inputCantidad = document.getElementById('input-cantidad');
 
+  if (!formPedido) {
+  console.error('No se encontró el formulario #form-pedido');
+}
+
   document.getElementById('btn-index').addEventListener('click', () => {
     window.location.href = 'index.html';
   });
@@ -75,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${det.denominacion}</td>
         <td>$${parseFloat(det.precio).toFixed(2)}</td>
         <td>$${subtotal.toFixed(2)}</td>
-        <td><button class="eliminar">❌</button></td>
+        <td><button class="btn btn-danger rounded-pill py-2 border border-dark fw-bold shadow fs-5 eliminar">Eliminar</button></td>
       `;
 
       tr.querySelector('.eliminar').addEventListener('click', () => {
@@ -195,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${item.denominacion}</td>
         <td>$${precioNum.toFixed(2)}</td>
         <td>$${subtotal.toFixed(2)}</td>
-        <td><button class="eliminar">❌</button></td>
+        <td><button class="btn btn-danger rounded-pill py-2 border border-dark fw-bold shadow fs-5 eliminar">Eliminar</button></td>
       `;
 
       tablaBody.appendChild(tr);
@@ -276,11 +280,15 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
     console.log('Pedido a enviar:', pedido);
 
     try {
-      const res = await fetch('http://localhost:3000/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pedido)
-      });
+        const url = pedidoId 
+        ? `http://localhost:3000/orders/${pedidoId}`
+        : `http://localhost:3000/orders`;
+        const method = pedidoId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pedido)
+        });
 
       if (!res.ok) throw new Error('Error guardando pedido');
 

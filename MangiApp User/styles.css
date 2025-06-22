@@ -111,33 +111,6 @@ button.btn:hover {
       max-width: 900px;
       margin: auto;
     }
-    .flex-container {
-      display: flex;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    #pedido-table {
-  font-size: 18px;              /* letra más grande */
-  border-collapse: collapse;   /* para que funcione border-radius */
-  border-spacing: 0;
-  border-radius: 12px;          /* bordes redondeados */
-  overflow: hidden;             /* para que el redondeo funcione en la tabla */
-  width: 100%;
-  max-width: 700px;
-  box-shadow: 0 0 8px #fbc02daa; /* sombra sutil amarillo */
-}
-
-#pedido-table thead {
-  background-color: #fbc02d;   /* fondo amarillo header */
-  color: #333;
-}
-
-#pedido-table th, 
-#pedido-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #fbc02d; /* línea amarilla entre filas */
-  text-align: center;
-}
 
     #form-container {
       border: 1px solid #ccc;
@@ -188,7 +161,6 @@ button {
   font-size: 16px;       /* tamaño de letra legible */
 }
 
-
 #agregar-fila {
   margin-right: 5px;
   min-width: 25%;
@@ -208,33 +180,6 @@ button:hover {
   flex-direction: column;
   gap: 15px;
 }
-
-/* LISTA PEDIDOS */
-
-  .acciones-btns {
-  display: flex;
-  justify-content: center;
-  gap: 8px; /* espacio entre botones */
-  }
-
-  .btn-cerrar {
-      background-color: #4caf50;
-      color: white;
-      white-space: nowrap;
-  }
-  
-  .btn-cancelar {
-      background-color: #e53935;
-      color: white;
-      white-space: nowrap;
-  }
-
-  .header-pedidos {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  }
 
 *,
 *::before,
