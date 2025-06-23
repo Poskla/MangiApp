@@ -172,3 +172,31 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-05-26 19:56:38
+
+CREATE TABLE `FAQs` (
+  `faq_id` int NOT NULL AUTO_INCREMENT,
+  `faq` varchar(350),
+  `ans` varchar(350),
+  PRIMARY KEY (`faq_id`)
+);
+
+CREATE TABLE `Local` (
+  `local_id` int NOT NULL AUTO_INCREMENT,
+  `denominacion` varchar(100) NOT NULL,
+  `ubicacion` varchar(200),
+  `imagenURL` varchar(255),
+  `email` varchar(100),
+  `telefono` varchar(15),
+  `historia` varchar(500),
+  PRIMARY KEY (`local_id`)
+);
+
+INSERT INTO `FAQs` VALUES (1, '1. ¿Que es MangiAPP?','Es una aplicación web para negocios gastronómicos que permite
+                        cargar, editar y organizar platos en una carta digital,
+                        accesible mediante un código QR. Además, permite al personal
+                        del local tomar pedidos desde la misma plataforma.');
+                        
+INSERT INTO `FAQs` VALUES (2, '2. ¿Se necesita instalar algo para usar MangiAPP?','No, funciona 100% online desde cualquier navegador, en celular,
+                        tablet o computadora.');                        
+
+INSERT INTO `Local` VALUES (1, 'Burger Prince', 'Av. La Plata 500, CABA, Argentina', 'https://s.yimg.com/ny/api/res/1.2/7OQLEDcQVBcoOTSHBK7XuA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTY0MDtoPTQyNw--/https://media.zenfs.com/es/animal_gourmet_468/47056da2496cb43ac502f87974606f92', 'burgerprince@gmail.com', '011-5555-8888', 'Estamos en el rubro alimenticio desde 1945, empezamos como un pequeño local con opciones clásicas y fuimos incorporando novedosas opciones y sucursales en toda la Argentina.');
