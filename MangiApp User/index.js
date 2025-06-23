@@ -24,35 +24,19 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 const path = require('path');
 
-//const path2 = require('path');
-//const ruta = path.join(__dirname,'..','..','MangiApp User','public');
 
-//const ruta2 = path2.join(__dirname,'..','..','MangiApp User','views');
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// app.get("/ABM_platos", function(req, res){
-//     res.render("ABM_platos")
-// });
+
 
 app.get("/", (req, res) => res.render("index"));
 app.get("/index", (req, res) => res.render("index"));
+app.get("/lista_pedidos", (req, res) => res.render("lista_pedidos"));
+app.get("/edicion_pedido", (req, res) => res.render("edicion_pedido"));
 
 
-// app.get("/ABM_platos", (req, res) => res.render("ABM_platos"));
-
-// app.get("/ABM_platos", async (req, res) => {
-//     try {
-//         const connection = await pool.getConnection();
-//         const [rows] = await connection.query("SELECT * FROM item");
-//         connection.release(); // Libera la conexión
-//         res.render("ABM_platos", { platos: rows }); // Pasa los datos a la vista
-//     } catch (error) {
-//         console.error("Error al obtener los platos:", error);
-//         res.status(500).send("Error al obtener los platos");
-//     }
-// });
 
 app.get("/ABM_platos", async (req, res) => {
     try {
@@ -114,16 +98,7 @@ app.post("/cargar", async function(req, res){
     }
 });
 
-    // conexion.query(cargar, function(error){
-    //     if(error){
-    //         throw error;
-
-    //     }else{
-    //         console.log("Datos guardados !!!")
-    //     }
-    // })
-
-    // console.log(datos);
+ 
 
 
  app.post("/actualizar-plato", async (req, res) => {
