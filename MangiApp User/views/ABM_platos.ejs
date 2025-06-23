@@ -8,11 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="/MangiApp User/public/ABM_platos.css">
-
 </head>
 
 <body>
-<button type="button" class="btn btn-outline-danger" onclick="window.location.href='index'">Volver al menu</button>
+    <button type="button" class="btn btn-outline-danger" onclick="window.location.href='index'">Volver al menu</button>
     <div class="container-tabla">
         <div class="row m-5">
             <div class="col-8">
@@ -23,70 +22,140 @@
                             <th scope="col">Categoria</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Precio</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Tragos</td>
-                            <td>Caipirinha</td>
-                            <td>9000</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Tragos</td>
-                            <td>Daikiri</td>
-                            <td>9000</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>Bebidas</td>
-                            <td>Gaseosa</td>
-                            <td>3500</td>
-                        </tr>
+                        <% platos.forEach((plato, index)=> { %>
+                            <tr id="plato-<%= plato.item_id %>">
+                                <th scope="row">
+                                    <%= index + 1 %>
+                                </th>
+                                <td>
+                                    <%= plato.categoria_nombre %>
+                                </td>
+                                <td>
+                                    <%= plato.denominacion %>
+                                </td>
+                                <td>
+                                    <%= plato.precio %>
+                                </td>
+                                <td>
+                                    <!-- Botón para abrir modal de edición -->
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editarPlatoModal" data-id="<%= plato.item_id %>"
+                                        data-nombre="<%= plato.denominacion %>" data-precio="<%= plato.precio %>"
+                                        data-descripcion="<%= plato.descripcion %>"
+                                        data-categoria="<%= plato.cat_id %>">
+                                        Editar
+                                    </button>
+                                    <!-- Botón para borrar -->
+                                    <button type="button" class="btn btn-sm btn-danger btn-borrar"
+                                        data-id="<%= plato.item_id %>">
+                                        Borrar
+                                    </button>
+                                </td>
+                            </tr>
+                            <% }); %>
                     </tbody>
                 </table>
             </div>
             <div class="col-4">
-                <form action="/cargar" method="post">
+                <form id="formCrearPlato" action="/cargar" method="post" enctype="application/x-www-form-urlencoded">
                     <h6>Nombre</h6>
                     <div class="input-group mb-3">
-
-
-                        <input type="text" class="form-control" aria-label="Sizing example input"
-                            aria-describedby="inputGroup-sizing-default" id="nomb" name="nomb">
+                        <input type="text" class="form-control" id="nomb" name="nomb" required>
                     </div>
                     <h6>Precio</h6>
                     <div class="input-group mb-3">
-
-
-                        <input type="number" class="form-control" aria-label="Sizing example input"
-                            aria-describedby="inputGroup-sizing-default" id="precio" name="precio">
+                        <input type="number" class="form-control" id="precio" name="precio" required>
                     </div>
                     <h6>Descripcion</h6>
                     <div class="input-group mb-3">
-
-                        <input type="text" class="form-control" aria-label="Sizing example input"
-                            aria-describedby="inputGroup-sizing-default" id="desc" name="desc">
+                        <input type="text" class="form-control" id="desc" name="desc" required>
                     </div>
-                    <select class="form-select" name="cat" id="cat" aria-label="Default select example">
-                        <option selected>Categoria</option>
-                        <option value="1">Tragos</option>
-                        <option value="2">Entrada</option>
-                        <option value="3">Bebida</option>
+                    <select class="form-select" name="cat" id="cat" aria-label="Default select example" required>
+                        <option value="" selected disabled>Seleccione una categoría</option>
+                        <% categorias.forEach(categoria=> { %>
+                            <option value="<%= categoria.cat_id %>">
+                                <%= categoria.denominacion %>
+                            </option>
+                            <% }); %>
                     </select>
                     <div class="container-aceptar">
                         <div class="row justify-content-center mt-2">
                             <div class="col-2">
-                                <input type="submit" value="Guardar" class="btn btn-warning"></button>
+                                <input type="submit" value="Guardar" class="btn btn-warning">
                             </div>
                             <div class="col-2">
                                 <button type="button" class="btn btn-secondary">Cancelar</button>
                             </div>
                         </div>
                     </div>
-
                 </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para editar plato -->
+    <div class="modal fade" id="editarPlatoModal" tabindex="-1" aria-labelledby="editarPlatoModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarPlatoModalLabel">Editar Plato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formEditarPlato" method="POST" action="/actualizar-plato"
+                    enctype="application/x-www-form-urlencoded">
+                    <div class="modal-body">
+                        <input type="hidden" id="platoId" name="id">
+                        <div class="mb-3">
+                            <label for="nombreEdit" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombreEdit" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precioEdit" class="form-label">Precio</label>
+                            <input type="number" class="form-control" id="precioEdit" name="precio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcionEdit" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcionEdit" name="descripcion"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoriaEdit" class="form-label">Categoría</label>
+                            <select class="form-select" id="categoriaEdit" name="categoria" required>
+                                <option value="" selected disabled>Seleccione una categoría</option>
+                                <% categorias.forEach(categoria=> { %>
+                                    <option value="<%= categoria.cat_id %>">
+                                        <%= categoria.denominacion %>
+                                    </option>
+                                    <% }); %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de confirmación para borrar -->
+    <div class="modal fade" id="confirmarBorrarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Borrado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro que deseas borrar este plato? Esta acción no se puede deshacer.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarBorrado">Borrar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -94,6 +163,130 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
+
+    <script>
+        // Función para agregar una nueva fila a la tabla
+        function agregarFilaPlato(plato, index) {
+            const tbody = document.querySelector('table tbody');
+
+            // Clonamos la primera fila para mantener el formato
+            const filaOriginal = tbody.querySelector('tr:first-child');
+            const nuevaFila = filaOriginal.cloneNode(true);
+
+            // Actualizamos los datos
+            nuevaFila.id = `plato-${plato.item_id}`;
+            nuevaFila.querySelector('th[scope="row"]').textContent = index + 1;
+            nuevaFila.querySelector('td:nth-child(2)').textContent = plato.categoria_nombre;
+            nuevaFila.querySelector('td:nth-child(3)').textContent = plato.denominacion;
+            nuevaFila.querySelector('td:nth-child(4)').textContent = plato.precio;
+
+            // Actualizamos los botones
+            const btnEditar = nuevaFila.querySelector('.btn-primary');
+            btnEditar.setAttribute('data-id', plato.item_id);
+            btnEditar.setAttribute('data-nombre', plato.denominacion);
+            btnEditar.setAttribute('data-precio', plato.precio);
+            btnEditar.setAttribute('data-descripcion', plato.descripcion);
+            btnEditar.setAttribute('data-categoria', plato.cat_id);
+
+            const btnBorrar = nuevaFila.querySelector('.btn-danger');
+            btnBorrar.setAttribute('data-id', plato.item_id);
+
+            tbody.appendChild(nuevaFila);
+        }
+        // Manejar el envío del formulario de creación
+        document.getElementById('formCrearPlato').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new URLSearchParams(new FormData(this));
+
+            fetch('/cargar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar la interfaz
+                        this.reset(); // Limpiar el formulario
+                        agregarFilaATabla(data.plato); // Tu función para agregar filas
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+        // Script para cargar datos en el modal cuando se hace clic en editar
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('editarPlatoModal');
+            modal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const nombre = button.getAttribute('data-nombre');
+                const precio = button.getAttribute('data-precio');
+                const descripcion = button.getAttribute('data-descripcion');
+                const categoria = button.getAttribute('data-categoria');
+
+                document.getElementById('platoId').value = id;
+                document.getElementById('nombreEdit').value = nombre;
+                document.getElementById('precioEdit').value = precio;
+                document.getElementById('descripcionEdit').value = descripcion || '';
+                document.getElementById('categoriaEdit').value = categoria;
+            });
+
+            // Opcional: Actualizar la vista sin recargar la página
+            document.getElementById('formEditarPlato').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new URLSearchParams(new FormData(this));
+
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload(); // Recarga la página para ver cambios
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            let platoABorrar = null;
+            const confirmarBorrarModal = new bootstrap.Modal(document.getElementById('confirmarBorrarModal'));
+
+            // Configurar botones de borrar
+            document.querySelectorAll('.btn-borrar').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    platoABorrar = this.getAttribute('data-id');
+                    confirmarBorrarModal.show();
+                });
+            });
+
+            // Confirmar borrado
+            document.getElementById('confirmarBorrado').addEventListener('click', function () {
+                if (platoABorrar) {
+                    fetch(`/borrar-plato/${platoABorrar}`, {
+                        method: 'DELETE'
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Eliminar la fila de la tabla
+                                document.getElementById(`plato-${platoABorrar}`).remove();
+                                confirmarBorrarModal.hide();
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
