@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
   document.getElementById('btn-index').addEventListener('click', () => {
-    window.location.href = 'index.html';
+    window.location.href = 'index';
   });
   document.getElementById('btn-pedidos').addEventListener('click', () => {
-    window.location.href = 'lista_pedidos.html';
+    window.location.href = 'lista_pedidos';
   });
 
   // Leer parámetros de la URL
