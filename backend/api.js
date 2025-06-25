@@ -29,6 +29,7 @@ app.get('/items', async (req, res) => {
   }
 });
 
+// Obtener un pedido específico
 app.get('/item/:id', async (req, res) => {
   try {
     const [rows] = await db.promise().query('SELECT * FROM Item WHERE item_id = ?', [req.params.id]);
@@ -245,6 +246,31 @@ app.put('/orders/:id', async (req, res) => {
   } catch (err) {
     console.error('Error al actualizar pedido:', err);
     res.status(500).json({ message: 'Error actualizando pedido' });
+  }
+});
+
+/* PREGUNTAS FRECUENTES */
+
+app.get('/faq', async (req, res) => {
+  try {
+    const [rows] = await db.promise().query('SELECT * FROM \`faqs\` ORDER BY faq_id');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener FAQs:', error); // 👈 esto es clave
+    res.status(500).json({ error: 'Error al obtener FAQs' });
+  }
+});
+
+/* INFO DEL LOCAL */
+app.get('/api/local', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.promise().query('SELECT * FROM local');
+    if (rows.length === 0) return res.status(404).json({ error: 'Local no encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error al obtener local:', err);
+    res.status(500).json({ error: 'Error interno' });
   }
 });
 
