@@ -163,6 +163,7 @@ body, .card {
     margin-right: auto;
     display: block;
     max-width: 480px; 
+    min-width: 35%;
     width: 100%;
 }
 

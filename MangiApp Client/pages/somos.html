@@ -14,19 +14,20 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
-      <a class="navbar-brand" href="menu.html">
-        <img src="/MangiApp Client/assets/images/Logo_transparente.png" alt="Logo" width="60" height="70" class="d-inline-block align-text-center" />
-        <strong>MangiApp</strong>
+      <a class="navbar-brand d-flex align-items-center" href="menu.html">
+        <img src="../assets/images/Logo_transparente.png" alt="Logo" width="60" height="70" class="d-inline-block align-text-center">
+        <strong class="ms-2 fs-2">MangiApp</strong>
       </a>
+      <span id="numero-mesa-navbar" class="ms-3 fw-bold fs-4 text-dark bg-warning px-2 rounded"></span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="menu.html">Menú</a></li>
-          <li class="nav-item"><a class="nav-link active" href="somos.html">Somos</a></li>
-          <li class="nav-item"><a class="nav-link" href="faq.html">FAQ</a></li>
+          <li class="nav-item fs-3"><a class="nav-link" href="menu.html">Menu</a></li>
+          <li class="nav-item fs-3"><a class="nav-link active" href="somos.html">Somos</a></li>
+          <li class="nav-item fs-3"><a class="nav-link" href="faq.html">FAQ</a></li>
         </ul>
       </div>
     </div>
@@ -80,8 +81,8 @@
           <p class="mt-4 fst-italic text-center text-muted">${data.frase}</p>
         `;
 
-        // Imágenes
-        const imgsArriba = [data.imagenURL2, data.imagenURL3, data.imagenURL4];
+      // Imágenes
+      const imgsArriba = [data.imagenURL2, data.imagenURL3, data.imagenURL4];
       const imgsAbajo = [data.imagenURL5, data.imagenURL6];
 
       document.getElementById("imagenes-arriba").innerHTML = imgsArriba.map(url => `
@@ -94,6 +95,25 @@
         console.error("Error al cargar los datos del local:", error);
       }
     });
+    
+    const params = new URLSearchParams(window.location.search);
+    const mesa = params.get('mesa');
+    const mesaSpan = document.getElementById('numero-mesa-navbar');
+
+    if (mesa) {
+      localStorage.setItem('mesa', mesa);
+      if (mesaSpan) mesaSpan.textContent = `Mesa ${mesa}`;
+      console.log('Número de mesa detectado en URL:', mesa);
+    } else {
+      // Si no viene en la URL, intento obtenerlo de localStorage
+      const mesaGuardada = localStorage.getItem('mesa');
+      if (mesaGuardada && mesaSpan) {
+        mesaSpan.textContent = `Mesa ${mesaGuardada}`;
+        console.log('Número de mesa recuperado de localStorage:', mesaGuardada);
+      } else {
+        console.warn('No se detectó número de mesa ni en URL ni en localStorage');
+      }
+    }
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
