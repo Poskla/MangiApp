@@ -274,7 +274,60 @@ app.get('/api/local', async (req, res) => {
   }
 });
 
-/* === SERVIDOR === */
+/* BOTON LLAMAR AL MOZO */ 
+app.post('/llamar-mozo', (req, res) => {
+  const { mesa } = req.body;
+  const hora = new Date().toLocaleTimeString();
+
+  io.emit('nueva-llamada', { mesa, hora }); // 🔥 ENVÍA EL EVENTO A LOS CLIENTES
+  res.sendStatus(200);
+});
+
+/* === SOCKET.IO === */
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: ["http://127.0.0.1:5500", "http://localhost:5500"], 
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }
+});
+
+/* === CONEXIÓN SOCKET.IO === */
+io.on('connection', socket => {
+  console.log('Cliente conectado por Socket.IO');
+
+  socket.on('llamar-mozo', data => {
+    console.log(`Mesa ${data.mesa} llamó al mozo a las ${data.hora}`);
+
+    // Insertar en base de datos
+    db.query(
+      'INSERT INTO notificacion (mesa) VALUES (?)',
+      [data.mesa],
+      (err, result) => {
+        if (err) {
+          console.error('Error al guardar en la base:', err);
+          return;
+        }
+
+        console.log('Llamado guardado en la base');
+        io.emit('nueva-llamada', {
+        mesa: data.mesa,
+        hora: new Date().toLocaleTimeString()
+        });
+      }
+    );
+  });
+});
+
+/* === SERVIDOR === 
 app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+}); */
+
+/* === SERVIDOR EXPRESS + SOCKET === */
+server.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

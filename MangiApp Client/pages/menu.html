@@ -14,7 +14,7 @@
         <img src="../assets/images/Logo_transparente.png" alt="Logo" width="60" height="70" class="d-inline-block align-text-center">
         <strong class="ms-2 fs-2">MangiApp</strong>
       </a>
-      <span id="numero-mesa-navbar" class="ms-3 fw-bold fs-4 text-dark bg-warning px-2 rounded"></span>
+      <button class="btn-sm btn btn-warning fw-bold" onclick="llamarMozo()">Llamar al mozo</button>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -94,6 +94,17 @@
       } else {
         console.warn('No se detectó número de mesa ni en URL ni en localStorage');
       }
+    }
+  </script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io('http://localhost:3000');      
+
+    function llamarMozo() {
+      const mesa = localStorage.getItem('mesa') || 'Sin número';
+      const hora = new Date().toLocaleTimeString();
+      socket.emit('llamar-mozo', { mesa, hora });
+      alert('Llamado enviado');
     }
   </script>
 </body>
