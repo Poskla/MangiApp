@@ -91,6 +91,7 @@ CREATE TABLE `order` (
   `subtotal` decimal(8,2) DEFAULT NULL,
   `descuento` int DEFAULT NULL,
   `total` decimal(8,2) DEFAULT NULL,
+  `total` int DEFAULT NULL,
   PRIMARY KEY (`order_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `order_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
