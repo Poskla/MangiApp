@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   console.error('No se encontró el formulario #form-pedido');
 }
 
-  document.getElementById('btn-index').addEventListener('click', () => {
-    window.location.href = 'index';
-  });
-  document.getElementById('btn-pedidos').addEventListener('click', () => {
-    window.location.href = 'lista_pedidos';
-  });
+  // document.getElementById('btn-index').addEventListener('click', () => {
+  //   window.location.href = 'index';
+  // });
+  // document.getElementById('btn-pedidos').addEventListener('click', () => {
+  //   window.location.href = 'lista_pedidos';
+  // });
 
   // Leer parámetros de la URL
     const params = new URLSearchParams(window.location.search);
@@ -44,11 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function cargarDetallesPedido(pedidoId) {
   try {
     // Obtener solo detalles de ítems (como tu backend lo devuelve)
-    const resDetalle = await fetch(`http://localhost:3000/orders/${pedidoId}`);
+    const resDetalle = await fetch(`/orders/${pedidoId}`);
     const detalles = await resDetalle.json();
 
     // Obtener TODOS los pedidos para encontrar el descuento
-    const resPedidos = await fetch('http://localhost:3000/orders');
+    const resPedidos = await fetch('/orders');
     const pedidos = await resPedidos.json();
 
     // Buscar el pedido actual en la lista para obtener el descuento
@@ -110,10 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function cargarDatos() {
     try {
-      const resCat = await fetch('http://localhost:3000/categorias');
+      console.log("llegue");
+      const resCat = await fetch('/categorias');
       categorias = await resCat.json();
 
-      const resItems = await fetch('http://localhost:3000/items');
+      const resItems = await fetch('/items');
       items = await resItems.json();
 
       // Cargar categorías en el select
@@ -281,8 +282,8 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
 
     try {
         const url = pedidoId 
-        ? `http://localhost:3000/orders/${pedidoId}`
-        : `http://localhost:3000/orders`;
+        ? `/orders/${pedidoId}`
+        : `/orders`;
         const method = pedidoId ? 'PUT' : 'POST';
         const res = await fetch(url, {
           method,
@@ -293,7 +294,7 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
       if (!res.ok) throw new Error('Error guardando pedido');
 
       alert('Pedido guardado correctamente');
-      window.location.href = 'lista_pedidos.html';
+      window.location.href = 'lista_pedidos';
     } catch (err) {
       console.error(err);
       alert('Ocurrió un error al guardar el pedido');

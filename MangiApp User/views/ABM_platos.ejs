@@ -47,12 +47,24 @@
             </button>
         </div>
 
-        <!-- Título + botón Agregar centrados y alineados -->
+          <!-- Título + botones Agregar Plato y Crear Categoría -->
         <div class="d-flex justify-content-between align-items-center my-4">
             <h1 class="fs-4 fw-bold mb-0">ABM PLATOS</h1>
-            <button id="btn-agregar" class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3" data-bs-toggle="modal" data-bs-target="#crearPlatoModal">
-                Agregar Plato
-            </button>
+            <div class="acciones-btns">
+                <button id="btn-agregar" class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3" data-bs-toggle="modal" data-bs-target="#crearPlatoModal">
+                    Agregar Plato
+                </button>
+               <div class="btn-group">
+                    <button type="button" class="btn btn-success rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Gestionar Categorías
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#crearCategoriaModal">Crear Categoría</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editarCategoriaModal">Editar Categoría</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#borrarCategoriaModal">Borrar Categoría</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Tabla -->
@@ -136,6 +148,29 @@
             </div>
         </div>
     </div>
+    <!-- Modal para crear categoría -->
+    <div class="modal fade" id="crearCategoriaModal" tabindex="-1" aria-labelledby="crearCategoriaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="crearCategoriaModalLabel">Crear Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formCrearCategoria" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="nombreCategoria" class="form-label">Nombre de la Categoría</label>
+                            <input type="text" class="form-control" id="nombreCategoria" name="nombreCategoria" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Crear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal para editar plato -->
     <div class="modal fade" id="editarPlatoModal" tabindex="-1" aria-labelledby="editarPlatoModalLabel" aria-hidden="true">
@@ -200,13 +235,74 @@
         </div>
     </div>
 
+        <!-- Modal para editar categoría -->
+    <div class="modal fade" id="editarCategoriaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formEditarCategoria">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Categoría</label>
+                            <select class="form-select" id="selectEditarCategoria" required>
+                                <option value="" selected disabled>Seleccione una categoría</option>
+                                <% categorias.forEach(categoria => { %>
+                                    <option value="<%= categoria.cat_id %>"><%= categoria.denominacion %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nuevo Nombre</label>
+                            <input type="text" class="form-control" id="nuevoNombreCategoria" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para borrar categoría -->
+    <div class="modal fade" id="borrarCategoriaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Borrar Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formBorrarCategoria">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Categoría</label>
+                            <select class="form-select" id="selectBorrarCategoria" required>
+                                <option value="" selected disabled>Seleccione una categoría</option>
+                                <% categorias.forEach(categoria => { %>
+                                    <option value="<%= categoria.cat_id %>"><%= categoria.denominacion %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="alert alert-warning">
+                            ¡Advertencia! Al borrar una categoría, todos los platos asociados a ella quedarán sin categoría.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Borrar</button>
+                    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
 
     <script>
         // Función para agregar una nueva fila a la tabla
-        function agregarFilaPlato(plato, index) {
+        function agregarFilaAPlato(plato, index) {
             const tbody = document.querySelector('table tbody');
 
             // Clonamos la primera fila para mantener el formato
@@ -233,7 +329,7 @@
 
             tbody.appendChild(nuevaFila);
         }
-        // Manejar el envío del formulario de creación
+        // Manejar el envío del formulario de creación de plato
         document.getElementById('formCrearPlato').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -251,11 +347,39 @@
                     if (data.success) {
                         // Actualizar la interfaz
                         this.reset(); // Limpiar el formulario
-                        agregarFilaATabla(data.plato); // Tu función para agregar filas
+                        agregarFilaAPlato(data.plato); // Tu función para agregar filas
                     }
                 })
                 .catch(error => console.error('Error:', error));
         });
+
+
+         // Manejar el envío del formulario de creación de categoria
+        document.getElementById('formCrearCategoria').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const nombreCategoria = document.getElementById('nombreCategoria').value;
+            fetch('/crear-categoria', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nombre: nombreCategoria })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Cerrar el modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('crearCategoriaModal'));
+                        modal.hide();
+                        // Limpiar el formulario
+                        this.reset();
+                        // Aquí puedes agregar la lógica para actualizar la lista de categorías en la interfaz
+                        // Por ejemplo, podrías volver a cargar las categorías desde el servidor
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
         // Script para cargar datos en el modal cuando se hace clic en editar
         document.addEventListener('DOMContentLoaded', function () {
             const modal = document.getElementById('editarPlatoModal');
