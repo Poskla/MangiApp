@@ -308,3 +308,63 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
       alert('Ocurrió un error al guardar el pedido');
     }
 });
+
+const btnNotificaciones = document.getElementById('btn-notificaciones');
+    const notificacionesList = document.getElementById('notificaciones');
+    const badge = document.getElementById('badge');
+    const campana = document.getElementById('campana');
+    const toastContainer = document.getElementById('toast-container');
+
+    let notificacionesCount = 0;
+
+    btnNotificaciones.addEventListener('click', () => {
+      // Bootstrap gestiona el dropdown automáticamente
+      badge.style.display = 'none';
+      badge.textContent = '0';
+      campana.textContent = '🔔';
+      notificacionesCount = 0;
+    });
+
+    const socket = io('http://localhost:3000');
+
+    socket.on('nueva-llamada', data => {
+      const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
+
+      // Crear y mostrar toast individual
+      const toastElement = document.createElement('div');
+      toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
+      toastElement.setAttribute('role', 'alert');
+      toastElement.setAttribute('aria-live', 'assertive');
+      toastElement.setAttribute('aria-atomic', 'true');
+      toastElement.style.width = '100%';
+
+      toastElement.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body fs-5">${mensaje}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+
+      toastContainer.appendChild(toastElement);
+
+      const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+      toast.show();
+
+      toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+      });
+
+      // Agregar a la lista después del toast
+      setTimeout(() => {
+        const li = document.createElement('li');
+        li.classList.add('dropdown-item', 'text-wrap');
+        li.textContent = mensaje;
+        notificacionesList.appendChild(li);
+
+        // Actualizar contador
+        notificacionesCount++;
+        badge.textContent = notificacionesCount;
+        badge.style.display = 'inline-block';
+        campana.textContent = '🔔';
+      }, 100);
+    });

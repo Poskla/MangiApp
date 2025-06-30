@@ -53,7 +53,9 @@
           const card = document.createElement('div');
           card.innerHTML = `
             <div class="card categoria-card mb-3" data-bs-toggle="collapse" href="#${catId}-menu" role="button">
-              <img src="../${cat.imagenURL}" class="categoria-img" alt="${cat.denominacion}">
+              <img src="${cat.imagenURL.startsWith('http://') || cat.imagenURL.startsWith('https://')
+                ? cat.imagenURL
+                : `../${cat.imagenURL}`}" class="categoria-img" alt="${cat.denominacion}">
               <div class="card-body"><h5 class="card-title mb-0">${cat.denominacion}</h5></div>
             </div>
 
@@ -63,7 +65,9 @@
                   hasItems
                     ? cat.items.map(item => `
                       <a href="detalle.html?id=${item.item_id}" class="producto-btn btn">
-                        <img src="../${item.imagenURL}" alt="${item.denominacion}">
+                        <img src="${item.imagenURL.startsWith('http://') || item.imagenURL.startsWith('https://')
+                          ? item.imagenURL
+                          : `../${item.imagenURL}`}" alt="${item.denominacion}">
                         <div class="producto-texto"><strong>${item.denominacion}</strong></div>
                         <span>$${item.precio}</span>
                       </a>

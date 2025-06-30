@@ -32,7 +32,9 @@
 </head>
 
 <body>
-  <div class="container bg-white p-5 rounded-4 border shadow-lg">
+
+  <!-- Contenedor blanco con borde -->
+  <div class="container bg-white p-5 rounded-4 border shadow-lg text-center position-relative">
 
     <!-- Botón Volver arriba del logo -->
     <div class="text-start mb-3">
@@ -44,7 +46,26 @@
       </button>
     </div>
 
-    <!-- Logo centrado -->
+    <!-- Botón campana con dropdown -->
+    <div class="dropdown position-absolute top-0 end-0 m-5">
+      <button id="btn-notificaciones"
+              class="btn position-relative" data-bs-toggle="dropdown" aria-expanded="false"
+              style="width: 50px; height: 50px; font-size: 20px; box-shadow: none;">
+        <span id="campana">🔔</span>
+        <span id="badge" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
+              style="display: none; font-size: 35px; min-width: 40px; height: 40px; line-height: 40px; padding: 0;">0</span>
+      </button>
+
+      <!-- Lista de notificaciones desplegable -->
+      <ul id="notificaciones" class="dropdown-menu shadow fs-3" style="max-height: 600px; overflow-y: auto; min-width: 450px; left: auto; right: 0; margin-right: 100px;">
+        <!-- Notificaciones -->
+      </ul>
+    </div>
+
+    <!-- Contenedor de todos los toasts acumulables -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-4" style="z-index: 1100; max-width: 600px;"></div>
+
+    <!-- Logo arriba -->
     <img src="logo.png" alt="Logo" class="logo mx-auto d-block"/>
 
     <!-- Título + Datos del pedido -->
@@ -122,8 +143,9 @@
   </div>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="script_pedidos.js"></script>
   <!-- Sweetalert -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="script_pedidos.js"></script>
 </body>
 </html>
