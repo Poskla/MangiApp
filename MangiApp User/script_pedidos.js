@@ -293,6 +293,15 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
       if (!res.ok) throw new Error('Error guardando pedido');
 
       alert('Pedido guardado correctamente');
+      // Notificación visual
+      Swal.fire({
+        icon: 'success',
+        title: 'Pedido creado',
+        text: `El pedido ${pedidoId} se guardó correctamente.`,
+        confirmButtonText: 'Aceptar',
+        timer: 3000,
+        timerProgressBar: true
+      });
       window.location.href = 'lista_pedidos.html';
     } catch (err) {
       console.error(err);

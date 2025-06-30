@@ -37,11 +37,30 @@
       </button>
     </div>
 
+    <!-- Botón campana con dropdown -->
+    <div class="dropdown position-absolute top-0 end-0 m-5">
+      <button id="btn-notificaciones"
+              class="btn position-relative" data-bs-toggle="dropdown" aria-expanded="false"
+              style="width: 50px; height: 50px; font-size: 20px; box-shadow: none;">
+        <span id="campana">🔔</span>
+        <span id="badge" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
+              style="display: none; font-size: 35px; min-width: 40px; height: 40px; line-height: 40px; padding: 0;">0</span>
+      </button>
+
+      <!-- Lista de notificaciones desplegable -->
+      <ul id="notificaciones" class="dropdown-menu shadow fs-3" style="max-height: 600px; overflow-y: auto; min-width: 450px; left: auto; right: 0; margin-right: 100px;">
+        <!-- Notificaciones -->
+      </ul>
+    </div>
+
+    <!-- Contenedor de todos los toasts acumulables -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-4" style="z-index: 1100; max-width: 600px;"></div>
+
     <!-- Logo arriba -->
     <img src="logo.png" alt="Logo" class="logo mx-auto d-block"/>
 
     <div class="container py-5">
-        <h1 class="text-center mb-4">Estadísticas de Ventas</h1>
+        <h1 class="text-center mb-4">Resumen de ventas</h1><br>
 
         <div class="row justify-content-center mb-4">
             <div class="col-md-4">
@@ -55,7 +74,7 @@
         </div><br>
 
         <div class="text-center mb-4">
-            <button id="btn-filtrar" class="btn btn-warning rounded-pill py-2 px-4 border border-dark fw-bold shadow fs-5">Mostrar Estadísticas</button>
+            <button id="btn-filtrar" class="btn btn-warning rounded-pill py-2 px-4 border border-dark fw-bold shadow fs-5">Mostrar Resultados</button>
         </div>
 
         <div id="resultados" class="text-center fs-4">
@@ -68,7 +87,69 @@
     </div>
   </div>
 
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
+    const btnNotificaciones = document.getElementById('btn-notificaciones');
+    const notificacionesList = document.getElementById('notificaciones');
+    const badge = document.getElementById('badge');
+    const campana = document.getElementById('campana');
+    const toastContainer = document.getElementById('toast-container');
+
+    let notificacionesCount = 0;
+
+    btnNotificaciones.addEventListener('click', () => {
+      // Bootstrap gestiona el dropdown automáticamente
+      badge.style.display = 'none';
+      badge.textContent = '0';
+      campana.textContent = '🔔';
+      notificacionesCount = 0;
+    });
+
+    const socket = io('http://localhost:3000');
+
+    socket.on('nueva-llamada', data => {
+      const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
+
+      // Crear y mostrar toast individual
+      const toastElement = document.createElement('div');
+      toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
+      toastElement.setAttribute('role', 'alert');
+      toastElement.setAttribute('aria-live', 'assertive');
+      toastElement.setAttribute('aria-atomic', 'true');
+      toastElement.style.width = '100%';
+
+      toastElement.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body fs-5">${mensaje}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+
+      toastContainer.appendChild(toastElement);
+
+      const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+      toast.show();
+
+      toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+      });
+
+      // Agregar a la lista después del toast
+      setTimeout(() => {
+        const li = document.createElement('li');
+        li.classList.add('dropdown-item', 'text-wrap');
+        li.textContent = mensaje;
+        notificacionesList.appendChild(li);
+
+        // Actualizar contador
+        notificacionesCount++;
+        badge.textContent = notificacionesCount;
+        badge.style.display = 'inline-block';
+        campana.textContent = '🔔';
+      }, 4000);
+    });
+</script>
+<script>
     document.getElementById('btn-filtrar').addEventListener('click', async () => {
       const inicio = document.getElementById('fecha-inicio').value;
       const fin = document.getElementById('fecha-fin').value;
@@ -105,6 +186,6 @@
     document.getElementById('btn-index').addEventListener('click', () => {
       window.location.href = 'index.html';
     });
-  </script>
+</script>  
 </body>
 </html>
