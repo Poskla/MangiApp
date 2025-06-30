@@ -116,6 +116,34 @@ app.post('/crear-categoria', async (req, res) => {
     }
 });
 
+// Endpoint para actualizar una categoría
+app.put('/actualizar-categoria/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nombre } = req.body;
+    try {
+        const connection = await pool.getConnection();
+        await connection.query('UPDATE category SET denominacion = ? WHERE cat_id = ?', [nombre, id]);
+        connection.release();
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error al actualizar categoría:", error);
+        res.status(500).json({ success: false });
+    }
+});
+// Endpoint para borrar una categoría
+app.delete('/borrar-categoria/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const connection = await pool.getConnection();
+        await connection.query('DELETE FROM category WHERE cat_id = ?', [id]);
+        connection.release();
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error al borrar categoría:", error);
+        res.status(500).json({ success: false });
+    }
+});
+
 // Endpoint para borrar un plato
 app.delete("/borrar-plato/:id", async (req, res) => {
     const { id } = req.params;
