@@ -1,86 +1,297 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-        <link rel="stylesheet" href="/MenuQR/faq.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ABM Platos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+  <style>
+    body {
+      background-color: #FFF9F0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+
+    .logo {
+      max-width: 30%;
+      margin-bottom: 30px;
+    }
+
+    .acciones-btns button {
+      margin-right: 5px;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container bg-white p-5 rounded-4 border shadow-lg text-center">
 
-    <div class="container-tabla">
-        <div class="row m-5">
-            <div class="col-8">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Categoria</th>
-                            <th scope="col">Nombre</th>
-                            <th scope="col">Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>John</td>
-                            <td>Doe</td>
-                            <td>@social</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-4">
-                <h6>Nombre</h6>
-                <div class="input-group mb-3">
-
-
-                    <input type="text" class="form-control" aria-label="Sizing example input"
-                        aria-describedby="inputGroup-sizing-default" id="nombre" name="nombre">
-                </div>
-                <h6>Precio</h6>
-                <div class="input-group mb-3">
-
-
-                    <input type="number" class="form-control" aria-label="Sizing example input"
-                        aria-describedby="inputGroup-sizing-default" id="precio" name="precio">
-                </div>
-                <h6>Descripcion</h6>
-                <div class="input-group mb-3">
-
-                    <input type="text" class="form-control" aria-label="Sizing example input"
-                        aria-describedby="inputGroup-sizing-default" id="desc" name="desc">
-                </div>
-                <select class="form-select" aria-label="Default select example">
-                    <option selected>Categoria</option>
-                    <option value="1">Tragos</option>
-                    <option value="2">Entrada</option>
-                    <option value="3">Bebida</option>
-                </select>
-            </div>
-        </div>
+    <div class="text-start mb-3">
+      <button id="btn-index" class="btn btn-warning rounded-pill py-2 px-4 border border-dark fw-bold shadow fs-5">
+        Volver al menú
+      </button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
-        crossorigin="anonymous"></script>
-</body>
+    <img src="logo.png" alt="Logo" class="logo mx-auto d-block" />
 
+    <div class="d-flex justify-content-between align-items-center my-4">
+      <h1 class="fs-4 fw-bold mb-0">ABM PLATOS</h1>
+      <button id="btn-agregar" class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3">
+        Agregar Plato
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead class="table-warning">
+          <tr class="fs-5 fw-semibold">
+            <th>#</th>
+            <th>Categoría</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Disponible</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="platos-table" class="fs-5 fw-light align-middle">
+          <!-- Filas generadas dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Modal Crear/Editar Plato -->
+  <div class="modal fade" id="modalPlato" tabindex="-1" aria-labelledby="modalPlatoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="formPlato" class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title" id="modalPlatoLabel">Agregar Plato</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-start">
+          <input type="hidden" id="inputId" />
+          <div class="mb-3">
+            <label for="inputCategoria" class="form-label">Categoría</label>
+            <select class="form-select" id="inputCategoria" name="cat_id" required>
+              <!-- Categorías cargadas aquí -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="inputNombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="inputNombre" name="denominacion" required />
+          </div>
+          <div class="mb-3">
+            <label for="inputDescripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="inputDescripcion" name="descripcion" rows="2"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="inputPrecio" class="form-label">Precio</label>
+            <input type="number" min="0" step="0.01" class="form-control" id="inputPrecio" name="precio" required />
+          </div>
+          <div class="mb-3">
+            <label for="inputDisponible" class="form-label">Disponible</label>
+            <select class="form-select" id="inputDisponible" name="disponible" required>
+              <option value="1">Sí</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="inputImagenURL" class="form-label">URL Imagen</label>
+            <input type="url" class="form-control" id="inputImagenURL" name="imagenURL" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const apiBase = 'http://localhost:3000';
+
+    const tabla = document.getElementById('platos-table');
+    const btnIndex = document.getElementById('btn-index');
+    const btnAgregar = document.getElementById('btn-agregar');
+    const modalPlatoEl = document.getElementById('modalPlato');
+    const modalPlato = new bootstrap.Modal(modalPlatoEl);
+    const formPlato = document.getElementById('formPlato');
+
+    const inputId = document.getElementById('inputId');
+    const inputCategoria = document.getElementById('inputCategoria');
+    const inputNombre = document.getElementById('inputNombre');
+    const inputDescripcion = document.getElementById('inputDescripcion');
+    const inputPrecio = document.getElementById('inputPrecio');
+    const inputDisponible = document.getElementById('inputDisponible');
+    const inputImagenURL = document.getElementById('inputImagenURL');
+
+    let categorias = [];
+
+    async function cargarCategorias() {
+      try {
+        const res = await fetch(`${apiBase}/categorias`);
+        categorias = await res.json();
+        inputCategoria.innerHTML = categorias
+          .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+          .join('');
+      } catch (err) {
+        alert('Error al cargar categorías');
+        console.error(err);
+      }
+    }
+
+    async function cargarPlatos() {
+      try {
+        const res = await fetch(`${apiBase}/items`);
+        const platos = await res.json();
+        tabla.innerHTML = '';
+
+        if (platos.length === 0) {
+          tabla.innerHTML = `<tr><td colspan="6" class="text-center fst-italic text-muted">No hay platos disponibles</td></tr>`;
+          return;
+        }
+
+        platos.forEach((plato, i) => {
+          const cat = categorias.find(c => c.cat_id === plato.cat_id);
+          tabla.innerHTML += `
+            <tr>
+              <th scope="row">${i + 1}</th>
+              <td>${cat ? cat.denominacion : 'Sin categoría'}</td>
+              <td>${plato.denominacion}</td>
+              <td>$${parseFloat(plato.precio).toFixed(2)}</td>
+              <td>${plato.disponible == 1 ? 'Sí' : 'No'}</td>
+              <td class="acciones-btns">
+                <button class="btn btn-warning rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-editar" data-id="${plato.item_id}">Editar</button>
+                <button class="btn btn-danger rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-borrar" data-id="${plato.item_id}">Borrar</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        alert('Error al cargar platos');
+        console.error(err);
+      }
+    }
+
+    btnIndex.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    btnAgregar.addEventListener('click', () => {
+      formPlato.reset();
+      inputId.value = '';
+      document.getElementById('modalPlatoLabel').textContent = 'Agregar Plato';
+      modalPlato.show();
+    });
+
+    tabla.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('btn-editar')) {
+        const id = e.target.getAttribute('data-id');
+        try {
+          const res = await fetch(`${apiBase}/item/${id}`);
+          if (!res.ok) throw new Error('Plato no encontrado');
+          const plato = await res.json();
+
+          inputId.value = plato.item_id;
+          inputCategoria.value = plato.cat_id;
+          inputNombre.value = plato.denominacion;
+          inputDescripcion.value = plato.descripcion || '';
+          inputPrecio.value = plato.precio;
+          inputDisponible.value = plato.disponible;
+          inputImagenURL.value = plato.imagenURL || '';
+
+          document.getElementById('modalPlatoLabel').textContent = 'Editar Plato';
+          modalPlato.show();
+        } catch (err) {
+          alert('Error al cargar plato para editar');
+          console.error(err);
+        }
+      } else if (e.target.classList.contains('btn-borrar')) {
+        const id = e.target.getAttribute('data-id');
+        if (confirm('¿Seguro que quieres borrar este plato?')) {
+          try {
+            const res = await fetch(`${apiBase}/items/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Error al borrar plato');
+            alert('Plato borrado');
+            cargarPlatos();
+          } catch (err) {
+            alert('Error al borrar plato');
+            console.error(err);
+          }
+        }
+      }
+    });
+
+    formPlato.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = inputId.value;
+      const nuevoPlato = {
+        denominacion: inputNombre.value.trim(),
+        descripcion: inputDescripcion.value.trim(),
+        precio: parseFloat(inputPrecio.value),
+        disponible: parseInt(inputDisponible.value),
+        cat_id: parseInt(inputCategoria.value),
+        imagenURL: inputImagenURL.value.trim(),
+        user_id: 1
+      };
+
+      try {
+        let res;
+        if (id) {
+          // Editar plato
+          res = await fetch(`${apiBase}/items/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoPlato)
+          });
+        } else {
+          // Crear plato
+          res = await fetch(`${apiBase}/items`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoPlato)
+          });
+        }
+
+        if (!res.ok) throw new Error('Error al guardar plato');
+
+        alert(id ? 'Plato actualizado' : 'Plato creado');
+        modalPlato.hide();
+        cargarPlatos();
+
+      } catch (err) {
+        alert('Error al guardar plato');
+        console.error(err);
+      }
+    });
+
+    // Inicializar
+    (async () => {
+      await cargarCategorias();
+      await cargarPlatos();
+    })();
+  
+    document.getElementById('btn-index').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('btn-agregar').addEventListener('click', () => {
+      // Aquí podrías abrir modal para agregar plato
+      alert('Funcionalidad para agregar plato no implementada');
+    });
+
+</script>   
+</body>
 </html>

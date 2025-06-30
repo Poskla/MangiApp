@@ -29,7 +29,7 @@ app.get('/items', async (req, res) => {
   }
 });
 
-// Obtener un pedido específico
+// Obtener un producto específico
 app.get('/item/:id', async (req, res) => {
   try {
     const [rows] = await db.promise().query('SELECT * FROM Item WHERE item_id = ?', [req.params.id]);
@@ -98,7 +98,7 @@ app.get('/categorias-con-items', async (req, res) => {
   }
 });
  
-// PEDIDOS
+/* PEDIDOS */
 
 // Cancelar un pedido (actualizar estado a "Cancelado")
 app.put('/orders/:id/cancel', async (req, res) => {
