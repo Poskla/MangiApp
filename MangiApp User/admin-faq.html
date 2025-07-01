@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MangiApp | Editar Preguntas Frecuentes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/MangiApp Client/assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+</head>
+<body>
+<div class="admin-faq-main">
+    <div class="admin-faq-container">
+        <div class="admin-faq-header mb-3">
+            <a href="index.html" class="admin-faq-back">&larr;</a>
+            <span class="fw-bold text-muted fs-5">Editar preguntas frecuentes</span>
+        </div>
+        <h2 class="admin-faq-title text-center">Editar Preguntas Frecuentes</h2>
+        <div class="d-flex justify-content-end">
+            <button class="btn-crear" id="btn-nueva">Crear Pregunta Nueva</button>
+        </div>
+        <div id="admin-faq-list"></div>
+    </div>
+</div>
+
+<!-- MODAL PARA NUEVA FAQ -->
+<div class="modal fade" id="modalNuevaFaq" tabindex="-1" aria-labelledby="modalNuevaFaqLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="form-nueva-faq" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNuevaFaqLabel">Crear Pregunta Nueva</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+          <div class="mb-3">
+              <label for="nueva-pregunta" class="form-label">Pregunta</label>
+              <input type="text" class="form-control" id="nueva-pregunta" maxlength="350" required>
+          </div>
+          <div class="mb-3">
+              <label for="nueva-respuesta" class="form-label">Respuesta</label>
+              <textarea class="form-control" id="nueva-respuesta" rows="3" maxlength="350" required></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function cargarFaqs() {
+    fetch('http://localhost:3000/faq')
+    .then(res => res.json())
+    .then(faqs => {
+        const lista = document.getElementById('admin-faq-list');
+        lista.innerHTML = '';
+        if (!faqs.length) {
+            lista.innerHTML = '<div class="text-center text-muted my-4">No hay preguntas frecuentes.</div>';
+            return;
+        }
+        faqs.forEach((faq, i) => {
+            const card = document.createElement('div');
+            card.className = 'admin-faq-card';
+
+            // Pregunta y botones
+            card.innerHTML = `
+                <div class="admin-faq-q-row">
+                    <span class="admin-faq-num">${i+1}.</span>
+                    <span class="admin-faq-question">${faq.faq}</span>
+                    <div class="admin-faq-actions ms-auto">
+                        <button class="edit-btn" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#666" viewBox="0 0 16 16"><path d="M15.502 1.94a1.5 1.5 0 0 1 0 2.12l-1 1-2.12-2.12 1-1a1.5 1.5 0 0 1 2.12 0zm-2.122 2.122L3 14.44V16h1.561l10.38-10.38-2.561-2.56z"/></svg></button>
+                        <button class="delete-btn" title="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#c00" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 5h4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5v-7zm-1 0A1.5 1.5 0 0 1 6 4h4a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 10 14H6a1.5 1.5 0 0 1-1.5-1.5v-7zm6.5-3a.5.5 0 0 1 .5.5V4h-8V2.5a.5.5 0 0 1 .5-.5h7zm-7-1A1.5 1.5 0 0 0 2.5 2.5V4h-1A.5.5 0 0 0 1 4.5v1A.5.5 0 0 0 1.5 6h13a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1V2.5A1.5 1.5 0 0 0 12.5 1h-7z"/></svg></button>
+                    </div>
+                </div>
+                <div class="admin-faq-answer-row">
+                    <p class="admin-faq-answer mb-1">${faq.ans}</p>
+                </div>
+            `;
+            lista.appendChild(card);
+
+            // Editar
+            card.querySelector('.edit-btn').onclick = () => editarFaq(card, faq, i);
+
+            // Eliminar
+            card.querySelector('.delete-btn').onclick = async () => {
+                const confirmar = await Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: 'Esta acción no se puede deshacer',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                });
+                if (confirmar.isConfirmed) {
+                    try {
+                        const response = await fetch(`http://localhost:3000/faq/${faq.faq_id}`, {
+                            method: "DELETE"
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Eliminado',
+                                text: 'La pregunta se eliminó correctamente.'
+                            });
+                            cargarFaqs();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.error || 'No se pudo eliminar.'
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: 'No se pudo conectar con el servidor.'
+                        });
+                    }
+                }
+            };
+        });
+    });
+}
+
+// Edición inline
+function editarFaq(card, faq, idx) {
+    card.classList.add('faq-edit-mode');
+    card.innerHTML = `
+        <div>
+            <input class="form-control faq-edit-input mb-2" type="text" value="${faq.faq}" maxlength="350" placeholder="Pregunta frecuente">
+            <textarea class="form-control faq-edit-textarea mb-2" rows="3" maxlength="350" placeholder="Respuesta">${faq.ans}</textarea>
+        </div>
+        <div class="admin-faq-actions d-flex justify-content-end gap-2">
+            <button class="btn btn-success btn-sm save-btn" title="Guardar">&#10003;</button>
+            <button class="btn btn-secondary btn-sm cancel-btn" title="Cancelar">&#10006;</button>
+        </div>
+    `;
+    card.querySelector('.save-btn').onclick = () => {
+        const faqText = card.querySelector('input').value.trim();
+        const ansText = card.querySelector('textarea').value.trim();
+        fetch(`http://localhost:3000/faq/${faq.faq_id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ faq: faqText, ans: ansText })
+        }).then(res => {
+            if (res.ok) cargarFaqs();
+        });
+    };
+    card.querySelector('.cancel-btn').onclick = cargarFaqs;
+}
+
+// Crear FAQ nueva
+document.getElementById('btn-nueva').onclick = () => {
+    const modal = new bootstrap.Modal(document.getElementById('modalNuevaFaq'));
+    modal.show();
+};
+
+document.getElementById('form-nueva-faq').onsubmit = (e) => {
+    e.preventDefault();
+    const faq = document.getElementById('nueva-pregunta').value.trim();
+    const ans = document.getElementById('nueva-respuesta').value.trim();
+    fetch('http://localhost:3000/faq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ faq, ans })
+    })
+    .then(res => {
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('modalNuevaFaq')).hide();
+            cargarFaqs();
+            e.target.reset();
+        } else {
+            return res.json().then(data => { throw new Error(data.error || 'Error'); });
+        }
+    })
+    .catch(err => alert('Error al guardar FAQ: ' + err.message));
+};
+
+// Inicializar
+cargarFaqs();
+</script>
+</body>
+</html>
