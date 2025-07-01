@@ -48,7 +48,7 @@
       </button>
 
       <!-- Lista de notificaciones desplegable -->
-      <ul id="notificaciones" class="dropdown-menu shadow fs-3" style="max-height: 600px; overflow-y: auto; min-width: 450px; left: auto; right: 0; margin-right: 100px;">
+      <ul id="notificaciones" class="dropdown-menu shadow fs-3 text-center" style="max-height: 800px; overflow-y: auto; min-width: 400px; left: auto; right: 0; margin-right: 100px;">
         <!-- Notificaciones -->
       </ul>
     </div>
@@ -86,7 +86,7 @@
         </div>
     </div>
   </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.getElementById('btn-filtrar').addEventListener('click', async () => {
       const inicio = document.getElementById('fecha-inicio').value;
@@ -125,7 +125,6 @@
       window.location.href = 'index.html';
     });
 </script>  
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const btnNotificaciones = document.getElementById('btn-notificaciones');

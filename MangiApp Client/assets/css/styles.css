@@ -48,7 +48,7 @@ a {
     .producto-texto {
       flex-grow: 1;
     }
-    @media (min-width: 768px) {
+    @media (max-width: 768px) {
       .categoria-img {
         height: 250px;
       }

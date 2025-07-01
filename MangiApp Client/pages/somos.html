@@ -49,7 +49,10 @@
       <!-- CONTACTO -->
       <div class="contact-container mt-4 p-3" style="background: #fff; border-radius: 16px; border: 1.5px solid #e4e4e4;"></div>
   </div>  
-
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Sweetalert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
       try {
@@ -97,29 +100,11 @@
     });
     
     const params = new URLSearchParams(window.location.search);
-    const mesa = params.get('mesa');
-    const mesaSpan = document.getElementById('numero-mesa-navbar');
-
-    if (mesa) {
-      localStorage.setItem('mesa', mesa);
-      if (mesaSpan) mesaSpan.textContent = `Mesa ${mesa}`;
-      console.log('Número de mesa detectado en URL:', mesa);
-    } else {
-      // Si no viene en la URL, intento obtenerlo de localStorage
-      const mesaGuardada = localStorage.getItem('mesa');
-      if (mesaGuardada && mesaSpan) {
-        mesaSpan.textContent = `Mesa ${mesaGuardada}`;
-        console.log('Número de mesa recuperado de localStorage:', mesaGuardada);
-      } else {
-        console.warn('No se detectó número de mesa ni en URL ni en localStorage');
-      }
+    if (!params.has('mesa')) {
+      params.set('mesa', '1');
+      window.location.search = params.toString();  // 🔄 redirige con ?mesa=1
     }
 </script>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Sweetalert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
