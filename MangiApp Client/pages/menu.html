@@ -41,7 +41,7 @@
 
   <!-- Script para cargar categorías y platos desde la API -->
   <script>
-    fetch('http://localhost:3000/categorias-con-items')
+    fetch('/categorias-con-items')
       .then(res => res.json())
       .then(categorias => {
         const container = document.getElementById('categorias-container');

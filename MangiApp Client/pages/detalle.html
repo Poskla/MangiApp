@@ -48,7 +48,7 @@
     const id = params.get("id");
 
     if (id) {
-      fetch(`http://localhost:3000/item/${id}`)
+      fetch(`/item/${id}`)
         .then(res => res.json())
         .then(data => {
           const cont = document.getElementById("plato-detalle");

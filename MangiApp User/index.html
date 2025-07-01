@@ -24,12 +24,29 @@
       max-width: 40%;
       margin-bottom: 30px;
     }
+
+
+    #logoutBtn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 18px;
+    background: #ffc107;
+    color: #000;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
   </style>
 </head>
 
 <body>
+  
+
   <!-- Contenedor blanco con borde -->
   <div class="container bg-white p-5 rounded-4 border shadow-lg text-center position-relative">
+    <button id="logoutBtn" class="btn btn-danger">Cerrar sesión</button>
     <!-- Botón campana con dropdown -->
     <div class="dropdown position-absolute top-0 end-0 m-5">
       <button id="btn-notificaciones"
@@ -145,6 +162,14 @@
         campana.textContent = '🔔';
       }, 4000);
     });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+  // Borrar el token
+  localStorage.removeItem("token");
+
+  // Redirigir al login
+  window.location.href = "login.html";
+});
 </script>
 
 </body>

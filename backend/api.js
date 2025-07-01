@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const db = require('./db');
 const app = express();
 const PORT = 3000;
@@ -304,7 +305,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-const jwt = require('jsonwebtoken');
+
 const SECRET = '1234'; // Cámbiala por algo seguro
 
 app.post('/login', async (req, res) => {

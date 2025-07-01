@@ -1,51 +1,100 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login MangiApp</title>
+  <!-- Si usas Bootstrap u otros estilos, podés agregar tu CSS -->
   <link rel="stylesheet" href="styles.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Lado Izquierdo: Formulario de Login -->
-    <div class="login-form">
-      <h3>Iniciar sesión</h3><br>
-      <form>
-        <div class="input-group">
-          <label for="email">Correo electrónico</label>
-          <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" required>
-        </div>
-        <div class="input-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" name="password" placeholder="••••••••" required>
-        </div>
-      </form>
-      <button type="submit" class="btn" onclick="window.location.href='index.html'"><h3>Entrar</h3></button><br><br><br>
-      <h4>¿No tenés una cuenta?</h4>
-      <h4 class="cuenta">Crear cuenta</h4>
-    </div>
-
-    <!-- Lado Derecho: Logo -->
-    <div class="logo-section">
-      <img src="logo2.jpg" alt="logo" class="logo-img">
-    </div>
+<div class="container">
+  <!-- Formulario de Login -->
+  <div class="login-form">
+    <h3>Iniciar sesión</h3><br>
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn"><h3>Entrar</h3></button>
+    </form>
+    <br><br>
+    <h4>¿No tenés una cuenta?</h4>
+    <a href="register.html" class="cuenta">Crear cuenta</a>
   </div>
 
+  <!-- Logo a la derecha -->
+  <div class="logo-section">
+    <img src="logo2.jpg" alt="logo" class="logo-img">
+  </div>
+</div>
+
 <script>
-  document.querySelector("form").addEventListener("submit", function(event) {
-  event.preventDefault();  // Prevenimos que el formulario se envíe
+document.querySelector("#loginForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
 
-  const email = document.querySelector("#email").value;
-  const password = document.querySelector("#password").value;
+  const email = document.querySelector("#email").value.trim();
+  const password = document.querySelector("#password").value.trim();
 
-  if (email && password) {
-    alert("Login exitoso");
-  } else {
-    alert("Por favor, completa todos los campos");
+  if (!email || !password) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campos incompletos',
+      text: 'Por favor, completa todos los campos.'
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Login exitoso',
+        text: 'Serás redirigido en un momento.',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
+
+      // Guardar token
+      localStorage.setItem("token", data.token);
+
+      // Redirigir
+      window.location.href = "index.html";
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de inicio de sesión',
+        text: data.error
+      });
+    }
+  } catch (error) {
+    console.error("Error de red:", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de conexión',
+      text: 'No se pudo conectar con el servidor.'
+    });
   }
 });
 </script>
+
 </body>
 </html>
+
