@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const db = require('./db');
 const app = express();
 const PORT = 3000;
@@ -360,6 +362,81 @@ app.get('/api/local', async (req, res) => {
     res.status(500).json({ error: 'Error interno' });
   }
 });
+
+
+
+app.post('/register', async (req, res) => {
+  const { user, email, password, rol } = req.body;
+
+  if (!user || !email || !password) {
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  }
+
+  try {
+    // Hashear contraseña
+    const hash = await bcrypt.hash(password, 10);
+
+    // Insertar usuario
+    await db.promise().query(
+      'INSERT INTO `user` (`user`, `email`, `password`, `rol`) VALUES (?, ?, ?, ?)',
+      [user, email, hash, rol || null]
+    );
+
+    res.status(201).json({ message: 'Usuario registrado correctamente' });
+  } catch (err) {
+    console.error('Error al registrar:', err);
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'El email o usuario ya está registrado' });
+    }
+    res.status(500).json({ error: 'Error al registrar usuario' });
+  }
+});
+
+
+const SECRET = '1234'; // Cámbiala por algo seguro
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  }
+
+  try {
+    // Buscar por email
+    const [rows] = await db.promise().query(
+      'SELECT * FROM `user` WHERE email = ?',
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Email no encontrado' });
+    }
+
+    const usuario = rows[0];
+
+    // Comparar contraseña
+    const coincide = await bcrypt.compare(password, usuario.password);
+    if (!coincide) {
+      return res.status(401).json({ error: 'Contraseña incorrecta' });
+    }
+
+    // Crear token
+    const token = jwt.sign(
+      { user_id: usuario.user_id, user: usuario.user, rol: usuario.rol },
+      SECRET,
+      { expiresIn: '8h' }
+    );
+
+    res.json({ message: 'Login exitoso', token });
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(500).json({ error: 'Error en login' });
+  }
+});
+
+
+
 
 /* BOTON LLAMAR AL MOZO */ 
 app.post('/llamar-mozo', (req, res) => {
