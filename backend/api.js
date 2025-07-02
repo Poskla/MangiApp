@@ -19,6 +19,37 @@ app.get('/categorias', async (req, res) => {
   }
 });
 
+// Modificar categoría existente
+app.put('/categorias/:id', async (req, res) => {
+  const { nombre } = req.body; // Obtener el nuevo nombre de la categoría
+  const id = req.params.id; // Obtener el ID de la categoría a modificar
+  try {
+    const [result] = await db.promise().query(
+      `UPDATE Category SET denominacion = ? WHERE cat_id = ?`,
+      [nombre, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+    res.json({ message: 'Categoría actualizada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// Eliminar categoría
+app.delete('/categorias/:id', async (req, res) => {
+  const id = req.params.id; // Obtener el ID de la categoría a eliminar
+  try {
+    const [result] = await db.promise().query('DELETE FROM Category WHERE cat_id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Categoría no encontrada' });
+    }
+    res.json({ message: 'Categoría eliminada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Obtener todos los productos
 app.get('/items', async (req, res) => {
   try {
@@ -50,6 +81,20 @@ app.post('/items', async (req, res) => {
       [denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id]
     );
     res.status(201).json({ id: result.insertId, message: 'Producto creado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Agregar nueva categoría
+app.post('/categorias', async (req, res) => {
+  const { nombre } = req.body;
+  try {
+    const [result] = await db.promise().query(
+      `INSERT INTO Category (denominacion) VALUES (?)`,
+      [nombre]
+    );
+    res.status(201).json({ id: result.insertId, message: 'Categoría creada' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

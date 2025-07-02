@@ -30,10 +30,11 @@
     }
   </style>
 </head>
+
 <body>
 
-    <!-- Contenedor blanco con borde -->
-    <div class="container bg-white p-5 rounded-4 border shadow-lg text-center position-relative">
+  <!-- Contenedor blanco con borde -->
+  <div class="container bg-white p-5 rounded-4 border shadow-lg text-center position-relative">
 
     <!-- Botón Volver arriba del logo -->
     <div class="text-start mb-3">
@@ -44,16 +45,16 @@
 
     <!-- Botón campana con dropdown -->
     <div class="dropdown position-absolute top-0 end-0 m-5">
-      <button id="btn-notificaciones"
-              class="btn position-relative" data-bs-toggle="dropdown" aria-expanded="false"
-              style="width: 50px; height: 50px; font-size: 20px; box-shadow: none;">
+      <button id="btn-notificaciones" class="btn position-relative" data-bs-toggle="dropdown" aria-expanded="false"
+        style="width: 50px; height: 50px; font-size: 20px; box-shadow: none;">
         <span id="campana">🔔</span>
         <span id="badge" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
-              style="display: none; font-size: 35px; min-width: 40px; height: 40px; line-height: 40px; padding: 0;">0</span>
+          style="display: none; font-size: 35px; min-width: 40px; height: 40px; line-height: 40px; padding: 0;">0</span>
       </button>
 
       <!-- Lista de notificaciones desplegable -->
-      <ul id="notificaciones" class="dropdown-menu shadow fs-3 text-center" style="max-height: 800px; overflow-y: auto; min-width: 400px; left: auto; right: 0; margin-right: 100px;">
+      <ul id="notificaciones" class="dropdown-menu shadow fs-3 text-center"
+        style="max-height: 800px; overflow-y: auto; min-width: 400px; left: auto; right: 0; margin-right: 100px;">
         <!-- Notificaciones -->
       </ul>
     </div>
@@ -66,9 +67,26 @@
 
     <div class="d-flex justify-content-between align-items-center my-4">
       <h1 class="fs-4 fw-bold mb-0">ABM PLATOS</h1>
-      <button id="btn-agregar" class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3">
+      <button id="btn-agregar"
+        class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3">
         Agregar Plato
       </button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center my-4">
+      <h1 class="fs-4 fw-bold mb-0">Gestión de Categorías</h1>
+      <div class="dropdown">
+        <button
+          class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3 dropdown-toggle"
+          type="button" id="btn-gestionar-categorias" data-bs-toggle="dropdown" aria-expanded="false">
+          Gestionar Categorías
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="btn-gestionar-categorias">
+          <li><button class="dropdown-item" id="btn-agregar-categoria">Agregar Categoría</button></li>
+          <li><button class="dropdown-item" id="btn-editar-categoria">Editar Categoría</button></li>
+          <li><button class="dropdown-item" id="btn-borrar-categoria">Borrar Categoría</button></li>
+        </ul>
+      </div>
     </div>
 
     <div class="table-responsive">
@@ -138,51 +156,142 @@
       </form>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>  
-  <script>
-    const apiBase = 'http://localhost:3000';
-    const tabla = document.getElementById('platos-table');
-    const modalPlatoEl = document.getElementById('modalPlato');
-    const modalPlato = new bootstrap.Modal(modalPlatoEl);
-    const formPlato = document.getElementById('formPlato');
 
-    const inputId = document.getElementById('inputId');
-    const inputCategoria = document.getElementById('inputCategoria');
-    const inputNombre = document.getElementById('inputNombre');
-    const inputDescripcion = document.getElementById('inputDescripcion');
-    const inputPrecio = document.getElementById('inputPrecio');
-    const inputDisponible = document.getElementById('inputDisponible');
-    const inputImagenURL = document.getElementById('inputImagenURL');
+  <!-- Modal Agregar Categoría -->
+  <div class="modal fade" id="modalAgregarCategoria" tabindex="-1" aria-labelledby="modalAgregarCategoriaLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="formAgregarCategoria" class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title" id="modalAgregarCategoriaLabel">Agregar Categoría</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-start">
+          <div class="mb-3">
+            <label for="inputCategoriaNombre" class="form-label">Nombre de la Categoría</label>
+            <input type="text" class="form-control" id="inputCategoriaNombreAgregar" name="nombre" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    let categorias = [];
+  <!-- Modal Editar Categoría -->
+<div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formEditarCategoria" class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <div class="mb-3">
+          <label for="selectCategoriaEditar" class="form-label">Seleccionar Categoría</label>
+          <select class="form-select" id="selectCategoriaEditar" required>
+            <!-- Las categorías se cargarán aquí -->
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="inputCategoriaNombreEditar" class="form-label">Nombre de la Categoría</label>
+          <input type="text" class="form-control" id="inputCategoriaNombreEditar" name="nombre" required />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-    async function cargarCategorias() {
-      try {
-        const res = await fetch(`${apiBase}/categorias`);
-        categorias = await res.json();
-        inputCategoria.innerHTML = categorias
-          .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
-          .join('');
-      } catch (err) {
-        alert('Error al cargar categorías');
-        console.error(err);
-      }
+ <!-- Modal Borrar Categoría -->
+<div class="modal fade" id="modalBorrarCategoria" tabindex="-1" aria-labelledby="modalBorrarCategoriaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modalBorrarCategoriaLabel">Borrar Categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <label for="selectCategoriaBorrar" class="form-label">Seleccionar Categoría</label>
+        <select class="form-select" id="selectCategoriaBorrar" required>
+          <!-- Las categorías se cargarán aquí -->
+        </select>
+        <p class="mt-3">¿Estás seguro de que deseas borrar esta categoría?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btn-confirmar-borrar">Borrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const apiBase = 'http://localhost:3000';
+  const tabla = document.getElementById('platos-table');
+  const modalPlatoEl = document.getElementById('modalPlato');
+  const modalPlato = new bootstrap.Modal(modalPlatoEl);
+  const formPlato = document.getElementById('formPlato');
+
+  const modalAgregarCategoriaEl = document.getElementById('modalAgregarCategoria');
+  const modalAgregarCategoria = new bootstrap.Modal(modalAgregarCategoriaEl);
+  const formAgregarCategoria = document.getElementById('formAgregarCategoria');
+
+  const modalEditarCategoriaEl = document.getElementById('modalEditarCategoria');
+  const modalEditarCategoria = new bootstrap.Modal(modalEditarCategoriaEl);
+  const formEditarCategoria = document.getElementById('formEditarCategoria');
+
+  const modalBorrarCategoriaEl = document.getElementById('modalBorrarCategoria');
+  const modalBorrarCategoria = new bootstrap.Modal(modalBorrarCategoriaEl);
+
+  const inputId = document.getElementById('inputId');
+  const inputCategoria = document.getElementById('inputCategoria');
+  const inputNombre = document.getElementById('inputNombre');
+  const inputDescripcion = document.getElementById('inputDescripcion');
+  const inputPrecio = document.getElementById('inputPrecio');
+  const inputDisponible = document.getElementById('inputDisponible');
+  const inputImagenURL = document.getElementById('inputImagenURL');
+
+  const inputCategoriaId = document.getElementById('inputCategoriaId');
+  const inputCategoriaNombre = document.getElementById('inputCategoriaNombre');
+
+  let categorias = [];
+
+  async function cargarCategorias() {
+    try {
+      const res = await fetch(`${apiBase}/categorias`);
+      categorias = await res.json();
+      inputCategoria.innerHTML = categorias
+        .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+        .join('');
+    } catch (err) {
+      alert('Error al cargar categorías');
+      console.error(err);
     }
+  }
 
-    async function cargarPlatos() {
-      try {
-        const res = await fetch(`${apiBase}/items`);
-        const platos = await res.json();
-        tabla.innerHTML = '';
+  async function cargarPlatos() {
+    try {
+      const res = await fetch(`${apiBase}/items`);
+      const platos = await res.json();
+      tabla.innerHTML = '';
 
-        if (platos.length === 0) {
-          tabla.innerHTML = `<tr><td colspan="6" class="text-center fst-italic text-muted">No hay platos disponibles</td></tr>`;
-          return;
-        }
+      if (platos.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="6" class="text-center fst-italic text-muted">No hay platos disponibles</td></tr>`;
+        return;
+      }
 
-        platos.forEach((plato, i) => {
-          const cat = categorias.find(c => c.cat_id === plato.cat_id);
-          tabla.innerHTML += `
+      platos.forEach((plato, i) => {
+        const cat = categorias.find(c => c.cat_id === plato.cat_id);
+        tabla.innerHTML += `
             <tr>
               <th scope="row">${i + 1}</th>
               <td>${cat ? cat.denominacion : 'Sin categoría'}</td>
@@ -195,172 +304,293 @@
               </td>
             </tr>
           `;
-        });
+      });
+    } catch (err) {
+      alert('Error al cargar platos');
+      console.error(err);
+    }
+  }
+
+  document.getElementById('btn-index').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+
+  document.getElementById('btn-agregar').addEventListener('click', () => {
+    formPlato.reset();
+    inputId.value = '';
+    document.getElementById('modalPlatoLabel').textContent = 'Agregar Plato';
+    modalPlato.show();
+  });
+
+  document.getElementById('btn-agregar-categoria').addEventListener('click', () => {
+    modalAgregarCategoria.show();
+  });
+
+  document.getElementById('btn-editar-categoria').addEventListener('click', () => {
+  const selectCategoriaEditar = document.getElementById('selectCategoriaEditar');
+  selectCategoriaEditar.innerHTML = categorias
+    .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+    .join('');
+  modalEditarCategoria.show();
+});
+
+  document.getElementById('btn-borrar-categoria').addEventListener('click', () => {
+  const selectCategoriaBorrar = document.getElementById('selectCategoriaBorrar');
+  selectCategoriaBorrar.innerHTML = categorias
+    .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+    .join('');
+  modalBorrarCategoria.show();
+});
+
+  document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
+    const id = document.getElementById('selectCategoriaBorrar').value; // Obtener el ID de la categoría seleccionada
+    try {
+      const res = await fetch(`${apiBase}/categorias/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al borrar categoría');
+      alert('Categoría borrada');
+      cargarCategorias();
+      modalBorrarCategoria.hide();
+    } catch (err) {
+      alert('Error al borrar categoría');
+      console.error(err);
+    }
+  });
+
+  document.getElementById('formAgregarCategoria').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nuevaCategoria = {
+      nombre: document.getElementById('inputCategoriaNombreAgregar').value.trim(),
+    };
+
+    try {
+      const res = await fetch(`${apiBase}/categorias`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevaCategoria)
+      });
+
+      if (!res.ok) throw new Error('Error al guardar categoría');
+
+      alert('Categoría creada');
+      cargarCategorias();
+      modalAgregarCategoria.hide();
+    } catch (err) {
+      alert('Error al guardar categoría');
+      console.error(err);
+    }
+  });
+
+  document.getElementById('formEditarCategoria').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('inputCategoriaIdEditar').value;
+    const categoriaEditada = {
+      nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
+    };
+
+    try {
+      const res = await fetch(`${apiBase}/categorias/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(categoriaEditada)
+      });
+
+      if (!res.ok) throw new Error('Error al actualizar categoría');
+
+      alert('Categoría actualizada');
+      cargarCategorias();
+      modalEditarCategoria.hide();
+    } catch (err) {
+      alert('Error al actualizar categoría');
+      console.error(err);
+    }
+  });
+
+  document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
+    const id = document.getElementById('inputCategoriaIdBorrar').value;
+
+    try {
+      const res = await fetch(`${apiBase}/categorias/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al borrar categoría');
+
+      alert('Categoría borrada');
+      cargarCategorias();
+      modalBorrarCategoria.hide();
+    } catch (err) {
+      alert('Error al borrar categoría');
+      console.error(err);
+    }
+  });
+
+  tabla.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('btn-editar')) {
+      const id = e.target.getAttribute('data-id');
+      try {
+        const res = await fetch(`${apiBase}/item/${id}`);
+        if (!res.ok) throw new Error('Plato no encontrado');
+        const plato = await res.json();
+
+        inputId.value = plato.item_id;
+        inputCategoria.value = plato.cat_id;
+        inputNombre.value = plato.denominacion;
+        inputDescripcion.value = plato.descripcion || '';
+        inputPrecio.value = plato.precio;
+        inputDisponible.value = plato.disponible;
+        inputImagenURL.value = plato.imagenURL || '';
+
+        document.getElementById('modalPlatoLabel').textContent = 'Editar Plato';
+        modalPlato.show();
       } catch (err) {
-        alert('Error al cargar platos');
+        alert('Error al cargar plato para editar');
         console.error(err);
       }
-    }
-
-    document.getElementById('btn-index').addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
-
-    document.getElementById('btn-agregar').addEventListener('click', () => {
-      formPlato.reset();
-      inputId.value = '';
-      document.getElementById('modalPlatoLabel').textContent = 'Agregar Plato';
-      modalPlato.show();
-    });
-
-    tabla.addEventListener('click', async (e) => {
-      if (e.target.classList.contains('btn-editar')) {
-        const id = e.target.getAttribute('data-id');
+    } else if (e.target.classList.contains('btn-borrar')) {
+      const id = e.target.getAttribute('data-id');
+      if (confirm('¿Seguro que quieres borrar este plato?')) {
         try {
-          const res = await fetch(`${apiBase}/item/${id}`);
-          if (!res.ok) throw new Error('Plato no encontrado');
-          const plato = await res.json();
-
-          inputId.value = plato.item_id;
-          inputCategoria.value = plato.cat_id;
-          inputNombre.value = plato.denominacion;
-          inputDescripcion.value = plato.descripcion || '';
-          inputPrecio.value = plato.precio;
-          inputDisponible.value = plato.disponible;
-          inputImagenURL.value = plato.imagenURL || '';
-
-          document.getElementById('modalPlatoLabel').textContent = 'Editar Plato';
-          modalPlato.show();
+          const res = await fetch(`${apiBase}/items/${id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('Error al borrar plato');
+          alert('Plato borrado');
+          cargarPlatos();
         } catch (err) {
-          alert('Error al cargar plato para editar');
+          alert('Error al borrar plato');
           console.error(err);
         }
-      } else if (e.target.classList.contains('btn-borrar')) {
-        const id = e.target.getAttribute('data-id');
-        if (confirm('¿Seguro que quieres borrar este plato?')) {
-          try {
-            const res = await fetch(`${apiBase}/items/${id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error('Error al borrar plato');
-            alert('Plato borrado');
-            cargarPlatos();
-          } catch (err) {
-            alert('Error al borrar plato');
-            console.error(err);
-          }
-        }
       }
-    });
+    }
+  });
 
-    formPlato.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = inputId.value;
-      const nuevoPlato = {
-        denominacion: inputNombre.value.trim(),
-        descripcion: inputDescripcion.value.trim(),
-        precio: parseFloat(inputPrecio.value),
-        disponible: parseInt(inputDisponible.value),
-        cat_id: parseInt(inputCategoria.value),
-        imagenURL: inputImagenURL.value.trim(),
-        user_id: 1
-      };
+  formPlato.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = inputId.value;
+    const nuevoPlato = {
+      denominacion: inputNombre.value.trim(),
+      descripcion: inputDescripcion.value.trim(),
+      precio: parseFloat(inputPrecio.value),
+      disponible: parseInt(inputDisponible.value),
+      cat_id: parseInt(inputCategoria.value),
+      imagenURL: inputImagenURL.value.trim(),
+      user_id: 1
+    };
 
-      try {
-        let res;
-        if (id) {
-          // Editar plato
-          res = await fetch(`${apiBase}/items/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevoPlato)
-          });
-        } else {
-          // Crear plato
-          res = await fetch(`${apiBase}/items`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevoPlato)
-          });
-        }
-
-        if (!res.ok) throw new Error('Error al guardar plato');
-
-        alert(id ? 'Plato actualizado' : 'Plato creado');
-        modalPlato.hide();
-        cargarPlatos();
-
-      } catch (err) {
-        alert('Error al guardar plato');
-        console.error(err);
+    try {
+      let res;
+      if (id) {
+        // Editar plato
+        res = await fetch(`${apiBase}/items/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoPlato)
+        });
+      } else {
+        // Crear plato
+        res = await fetch(`${apiBase}/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoPlato)
+        });
       }
-    });
 
-    // Inicializar
-    (async () => {
-      await cargarCategorias();
-      await cargarPlatos();
-    })();
-</script> 
+      if (!res.ok) throw new Error('Error al guardar plato');
+
+      alert(id ? 'Plato actualizado' : 'Plato creado');
+      modalPlato.hide();
+      cargarPlatos();
+
+    } catch (err) {
+      alert('Error al guardar plato');
+      console.error(err);
+    }
+  });
+
+  formEditarCategoria.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('selectCategoriaEditar').value; // Obtener el ID de la categoría seleccionada
+    const categoriaEditada = {
+      nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
+    };
+    try {
+      const res = await fetch(`${apiBase}/categorias/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(categoriaEditada)
+      });
+      if (!res.ok) throw new Error('Error al actualizar categoría');
+      alert('Categoría actualizada');
+      cargarCategorias();
+      modalEditarCategoria.hide();
+    } catch (err) {
+      alert('Error al actualizar categoría');
+      console.error(err);
+    }
+  });
+
+  // Inicializar
+  (async () => {
+    await cargarCategorias();
+    await cargarPlatos();
+  })();
+</script>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    const btnNotificaciones = document.getElementById('btn-notificaciones');
-    const notificacionesList = document.getElementById('notificaciones');
-    const badge = document.getElementById('badge');
-    const campana = document.getElementById('campana');
-    const toastContainer = document.getElementById('toast-container');
+<script>
+  const btnNotificaciones = document.getElementById('btn-notificaciones');
+  const notificacionesList = document.getElementById('notificaciones');
+  const badge = document.getElementById('badge');
+  const campana = document.getElementById('campana');
+  const toastContainer = document.getElementById('toast-container');
 
-    let notificacionesCount = 0;
+  let notificacionesCount = 0;
 
-    btnNotificaciones.addEventListener('click', () => {
-      // Bootstrap gestiona el dropdown automáticamente
-      badge.style.display = 'none';
-      badge.textContent = '0';
-      campana.textContent = '🔔';
-      notificacionesCount = 0;
-    });
+  btnNotificaciones.addEventListener('click', () => {
+    // Bootstrap gestiona el dropdown automáticamente
+    badge.style.display = 'none';
+    badge.textContent = '0';
+    campana.textContent = '🔔';
+    notificacionesCount = 0;
+  });
 
-    const socket = io('http://localhost:3000');
+  const socket = io('http://localhost:3000');
 
-    socket.on('nueva-llamada', data => {
-      const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
+  socket.on('nueva-llamada', data => {
+    const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
 
-      // Crear y mostrar toast individual
-      const toastElement = document.createElement('div');
-      toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
-      toastElement.setAttribute('role', 'alert');
-      toastElement.setAttribute('aria-live', 'assertive');
-      toastElement.setAttribute('aria-atomic', 'true');
-      toastElement.style.width = '100%';
+    // Crear y mostrar toast individual
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+    toastElement.style.width = '100%';
 
-      toastElement.innerHTML = `
+    toastElement.innerHTML = `
         <div class="d-flex">
           <div class="toast-body fs-5">${mensaje}</div>
           <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
       `;
 
-      toastContainer.appendChild(toastElement);
+    toastContainer.appendChild(toastElement);
 
-      const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-      toast.show();
+    const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+    toast.show();
 
-      toastElement.addEventListener('hidden.bs.toast', () => {
-        toastElement.remove();
-      });
-
-      // Agregar a la lista después del toast
-      setTimeout(() => {
-        const li = document.createElement('li');
-        li.classList.add('dropdown-item', 'text-wrap');
-        li.textContent = mensaje;
-        notificacionesList.appendChild(li);
-
-        // Actualizar contador
-        notificacionesCount++;
-        badge.textContent = notificacionesCount;
-        badge.style.display = 'inline-block';
-        campana.textContent = '🔔';
-      }, 100);
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
     });
+
+    // Agregar a la lista después del toast
+    setTimeout(() => {
+      const li = document.createElement('li');
+      li.classList.add('dropdown-item', 'text-wrap');
+      li.textContent = mensaje;
+      notificacionesList.appendChild(li);
+
+      // Actualizar contador
+      notificacionesCount++;
+      badge.textContent = notificacionesCount;
+      badge.style.display = 'inline-block';
+      campana.textContent = '🔔';
+    }, 100);
+  });
 </script>
-</body>
+
 </html>
