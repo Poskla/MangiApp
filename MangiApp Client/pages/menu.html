@@ -49,7 +49,7 @@
 
   <!-- Script para cargar categorías -->
   <script>
-    fetch('/categorias-con-items')
+    fetch('http://localhost:3000/categorias-con-items')
       .then(res => res.json())
       .then(categorias => {
         const container = document.getElementById('categorias-container');
