@@ -28,6 +28,7 @@
     .acciones-btns button {
       margin-right: 5px;
     }
+
   </style>
 </head>
 
@@ -66,7 +67,7 @@
     <img src="logo.png" alt="Logo" class="logo mx-auto d-block" />
 
     <div class="d-flex justify-content-between align-items-center my-4">
-      <h1 class="fs-4 fw-bold mb-0">ABM PLATOS</h1>
+      <h1 class="fs-4 fw-bold mb-0"></h1>
       <button id="btn-agregar"
         class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3">
         Agregar Plato
@@ -74,7 +75,7 @@
     </div>
 
     <div class="d-flex justify-content-between align-items-center my-4">
-      <h1 class="fs-4 fw-bold mb-0">Gestión de Categorías</h1>
+      <h1 class="fs-4 fw-bold mb-0"></h1>
       <div class="dropdown">
         <button
           class="btn btn-warning rounded-pill py-3 px-4 border border-dark fw-bold shadow fs-4 mb-3 dropdown-toggle"
@@ -86,6 +87,32 @@
           <li><button class="dropdown-item" id="btn-editar-categoria">Editar Categoría</button></li>
           <li><button class="dropdown-item" id="btn-borrar-categoria">Borrar Categoría</button></li>
         </ul>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center my-4">
+      <div class="form-group">
+        <label for="filtro-categoria">Filtrar por categoría:</label>
+        <select class="form-select" id="filtro-categoria">
+          <option value="">Todas las categorías</option>
+          <!-- Categorías se cargarán aquí -->
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="filtro-disponible">Filtrar por disponibilidad:</label>
+        <select class="form-select" id="filtro-disponible">
+          <option value="">Todos</option>
+          <option value="1">Disponibles</option>
+          <option value="0">No disponibles</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="orden-precio">Ordenar por precio:</label>
+        <select class="form-select" id="orden-precio">
+          <option value="">Sin ordenar</option>
+          <option value="asc">De menor a mayor</option>
+          <option value="desc">De mayor a menor</option>
+        </select>
       </div>
     </div>
 
@@ -106,6 +133,7 @@
         </tbody>
       </table>
     </div>
+
 
   </div>
 
@@ -181,55 +209,58 @@
   </div>
 
   <!-- Modal Editar Categoría -->
-<div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="formEditarCategoria" class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoría</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body text-start">
-        <div class="mb-3">
-          <label for="selectCategoriaEditar" class="form-label">Seleccionar Categoría</label>
-          <select class="form-select" id="selectCategoriaEditar" required>
+  <div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="formEditarCategoria" class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoría</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-start">
+          <div class="mb-3">
+            <label for="selectCategoriaEditar" class="form-label">Seleccionar Categoría</label>
+            <select class="form-select" id="selectCategoriaEditar" required>
+              <!-- Las categorías se cargarán aquí -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="inputCategoriaNombreEditar" class="form-label">Nombre de la Categoría</label>
+            <input type="text" class="form-control" id="inputCategoriaNombreEditar" name="nombre" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Borrar Categoría -->
+  <div class="modal fade" id="modalBorrarCategoria" tabindex="-1" aria-labelledby="modalBorrarCategoriaLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title" id="modalBorrarCategoriaLabel">Borrar Categoría</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-start">
+          <label for="selectCategoriaBorrar" class="form-label">Seleccionar Categoría</label>
+          <select class="form-select" id="selectCategoriaBorrar" required>
             <!-- Las categorías se cargarán aquí -->
           </select>
+          <p class="mt-3">¿Estás seguro de que deseas borrar esta categoría?</p>
         </div>
-        <div class="mb-3">
-          <label for="inputCategoriaNombreEditar" class="form-label">Nombre de la Categoría</label>
-          <input type="text" class="form-control" id="inputCategoriaNombreEditar" name="nombre" required />
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold"
+            id="btn-confirmar-borrar">Borrar</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
-      </div>
-    </form>
-  </div>
-</div>
-
- <!-- Modal Borrar Categoría -->
-<div class="modal fade" id="modalBorrarCategoria" tabindex="-1" aria-labelledby="modalBorrarCategoriaLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title" id="modalBorrarCategoriaLabel">Borrar Categoría</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body text-start">
-        <label for="selectCategoriaBorrar" class="form-label">Seleccionar Categoría</label>
-        <select class="form-select" id="selectCategoriaBorrar" required>
-          <!-- Las categorías se cargarán aquí -->
-        </select>
-        <p class="mt-3">¿Estás seguro de que deseas borrar esta categoría?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold" id="btn-confirmar-borrar">Borrar</button>
       </div>
     </div>
   </div>
-</div>
 
 </body>
 
@@ -272,44 +303,73 @@
       inputCategoria.innerHTML = categorias
         .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
         .join('');
+
+      // Cargar categorías en el filtro
+      const filtroCategoria = document.getElementById('filtro-categoria');
+      filtroCategoria.innerHTML = `
+      <option value="">Todas las categorías</option>
+      ${categorias.map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`).join('')}
+    `;
     } catch (err) {
       alert('Error al cargar categorías');
       console.error(err);
     }
   }
 
+  let platos = []; // Definir la variable global para almacenar los platos
   async function cargarPlatos() {
     try {
       const res = await fetch(`${apiBase}/items`);
-      const platos = await res.json();
+      platos = await res.json(); // Almacenar los platos en la variable global
       tabla.innerHTML = '';
-
       if (platos.length === 0) {
         tabla.innerHTML = `<tr><td colspan="6" class="text-center fst-italic text-muted">No hay platos disponibles</td></tr>`;
         return;
       }
-
-      platos.forEach((plato, i) => {
-        const cat = categorias.find(c => c.cat_id === plato.cat_id);
-        tabla.innerHTML += `
-            <tr>
-              <th scope="row">${i + 1}</th>
-              <td>${cat ? cat.denominacion : 'Sin categoría'}</td>
-              <td>${plato.denominacion}</td>
-              <td>$${parseFloat(plato.precio).toFixed(2)}</td>
-              <td>${plato.disponible == 1 ? 'Sí' : 'No'}</td>
-              <td class="acciones-btns">
-                <button class="btn btn-warning rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-editar" data-id="${plato.item_id}">Editar</button>
-                <button class="btn btn-danger rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-borrar" data-id="${plato.item_id}">Borrar</button>
-              </td>
-            </tr>
-          `;
-      });
+      // Llamar a la función de filtrar y ordenar después de cargar los platos
+      filtrarYOrdenar();
     } catch (err) {
       alert('Error al cargar platos');
       console.error(err);
     }
   }
+
+
+  function filtrarYOrdenar() {
+    const filtroCategoria = document.getElementById('filtro-categoria').value;
+    const filtroDisponible = document.getElementById('filtro-disponible').value;
+    const ordenPrecio = document.getElementById('orden-precio').value;
+    const platosFiltrados = platos.filter(plato => {
+      const cat = categorias.find(c => c.cat_id === plato.cat_id);
+      if (filtroCategoria && cat.cat_id !== parseInt(filtroCategoria)) return false;
+      if (filtroDisponible && plato.disponible !== parseInt(filtroDisponible)) return false;
+      return true;
+    });
+    if (ordenPrecio === 'asc') {
+      platosFiltrados.sort((a, b) => a.precio - b.precio);
+    } else if (ordenPrecio === 'desc') {
+      platosFiltrados.sort((a, b) => b.precio - a.precio);
+    }
+    tabla.innerHTML = '';
+    platosFiltrados.forEach((plato, i) => {
+      const cat = categorias.find(c => c.cat_id === plato.cat_id);
+      tabla.innerHTML += `
+      <tr>
+        <th scope="row">${i + 1}</th>
+        <td>${cat ? cat.denominacion : 'Sin categoría'}</td>
+        <td>${plato.denominacion}</td>
+        <td>$${parseFloat(plato.precio).toFixed(2)}</td>
+        <td>${plato.disponible == 1 ? 'Sí' : 'No'}</td>
+        <td class="acciones-btns">
+          <button class="btn btn-warning rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-editar" data-id="${plato.item_id}">Editar</button>
+          <button class="btn btn-danger rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-borrar" data-id="${plato.item_id}">Borrar</button>
+        </td>
+      </tr>
+    `;
+    });
+  }
+
+
 
   document.getElementById('btn-index').addEventListener('click', () => {
     window.location.href = 'index.html';
@@ -327,20 +387,20 @@
   });
 
   document.getElementById('btn-editar-categoria').addEventListener('click', () => {
-  const selectCategoriaEditar = document.getElementById('selectCategoriaEditar');
-  selectCategoriaEditar.innerHTML = categorias
-    .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
-    .join('');
-  modalEditarCategoria.show();
-});
+    const selectCategoriaEditar = document.getElementById('selectCategoriaEditar');
+    selectCategoriaEditar.innerHTML = categorias
+      .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+      .join('');
+    modalEditarCategoria.show();
+  });
 
   document.getElementById('btn-borrar-categoria').addEventListener('click', () => {
-  const selectCategoriaBorrar = document.getElementById('selectCategoriaBorrar');
-  selectCategoriaBorrar.innerHTML = categorias
-    .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
-    .join('');
-  modalBorrarCategoria.show();
-});
+    const selectCategoriaBorrar = document.getElementById('selectCategoriaBorrar');
+    selectCategoriaBorrar.innerHTML = categorias
+      .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+      .join('');
+    modalBorrarCategoria.show();
+  });
 
   document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
     const id = document.getElementById('selectCategoriaBorrar').value; // Obtener el ID de la categoría seleccionada
@@ -420,6 +480,10 @@
       console.error(err);
     }
   });
+
+  document.getElementById('filtro-categoria').addEventListener('change', filtrarYOrdenar);
+  document.getElementById('filtro-disponible').addEventListener('change', filtrarYOrdenar);
+  document.getElementById('orden-precio').addEventListener('change', filtrarYOrdenar);
 
   tabla.addEventListener('click', async (e) => {
     if (e.target.classList.contains('btn-editar')) {
