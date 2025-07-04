@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputCantidad = document.getElementById('input-cantidad');
 
   if (!formPedido) {
-  console.error('No se encontró el formulario #form-pedido');
-}
+    console.error('No se encontró el formulario #form-pedido');
+  }
 
   document.getElementById('btn-index').addEventListener('click', () => {
     window.location.href = 'index.html';
@@ -19,86 +19,75 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'lista_pedidos.html';
   });
 
-  // Leer parámetros de la URL
-    const params = new URLSearchParams(window.location.search);
-    pedidoId = params.get('order_id');
-    const mesa = params.get('mesa');
-    const inputMesa = document.getElementById('input-mesa');
-    const valorMesaSpan = document.getElementById('valor-mesa');
-    const descuentoInput = document.getElementById('descuento');
-    
-    // Mostrar en los spans
-    document.getElementById('valor-pedido').textContent = pedidoId || '-';
-    document.getElementById('valor-mesa').textContent = mesa || '-';
+  const params = new URLSearchParams(window.location.search);
+  pedidoId = params.get('order_id');
+  const mesa = params.get('mesa');
+  const inputMesa = document.getElementById('input-mesa');
+  const valorMesaSpan = document.getElementById('valor-mesa');
+  const descuentoInput = document.getElementById('descuento');
 
-    if (pedidoId) {
-      // Pedido existente: mostrar solo el span con la mesa
-      valorMesaSpan.style.display = 'inline';
-      inputMesa.style.display = 'none';
-    } else {
-      // Pedido nuevo: mostrar input para ingresar mesa
-      valorMesaSpan.style.display = 'none';
-      inputMesa.style.display = 'inline-block';
-    }
+  document.getElementById('valor-pedido').textContent = pedidoId || '-';
+  document.getElementById('valor-mesa').textContent = mesa || '-';
+
+  if (pedidoId) {
+    valorMesaSpan.style.display = 'inline';
+    inputMesa.style.display = 'none';
+  } else {
+    valorMesaSpan.style.display = 'none';
+    inputMesa.style.display = 'inline-block';
+  }
 
   async function cargarDetallesPedido(pedidoId) {
-  try {
-    // Obtener solo detalles de ítems (como tu backend lo devuelve)
-    const resDetalle = await fetch(`http://localhost:3000/orders/${pedidoId}`);
-    const detalles = await resDetalle.json();
+    try {
+      const resDetalle = await fetch(`http://localhost:3000/orders/${pedidoId}`);
+      const detalles = await resDetalle.json();
 
-    // Obtener TODOS los pedidos para encontrar el descuento
-    const resPedidos = await fetch('http://localhost:3000/orders');
-    const pedidos = await resPedidos.json();
+      const resPedidos = await fetch('http://localhost:3000/orders');
+      const pedidos = await resPedidos.json();
 
-    // Buscar el pedido actual en la lista para obtener el descuento
-    const pedido = pedidos.find(p => p.order_id == pedidoId);
+      const pedido = pedidos.find(p => p.order_id == pedidoId);
+      if (descuentoInput && pedido && pedido.descuento != null) {
+        descuentoInput.value = pedido.descuento;
+      }
 
-    // Setear el descuento en el input si existe
-    const descuentoInput = document.getElementById('descuento');
-    if (descuentoInput && pedido && pedido.descuento != null) {
-      descuentoInput.value = pedido.descuento;
-    }
+      tablaBody.innerHTML = '';
 
-    // Limpiar la tabla
-    const tablaBody = document.querySelector('#pedido-table tbody');
-    tablaBody.innerHTML = '';
+      detalles.forEach(det => {
+        const subtotal = det.precio * det.cant;
 
-    // Cargar detalles de ítems en tabla
-    detalles.forEach(det => {
-      const subtotal = det.precio * det.cant;
+        const tr = document.createElement('tr');
+        tr.dataset.itemId = det.item_id;
+        tr.dataset.cantidad = det.cant;
+        tr.dataset.precio = det.precio;
 
-      const tr = document.createElement('tr');
-      tr.dataset.itemId = det.item_id;
-      tr.dataset.cantidad = det.cant;
-      tr.dataset.precio = det.precio;
+        tr.innerHTML = `
+          <td>${det.cant}</td>
+          <td>${det.categoria}</td>
+          <td>${det.denominacion}</td>
+          <td>$${parseFloat(det.precio).toFixed(2)}</td>
+          <td>$${subtotal.toFixed(2)}</td>
+          <td><button class="btn btn-danger rounded-pill py-2 border border-dark fw-bold shadow fs-5 eliminar">Eliminar</button></td>
+        `;
 
-      tr.innerHTML = `
-        <td>${det.cant}</td>
-        <td>${det.categoria}</td>
-        <td>${det.denominacion}</td>
-        <td>$${parseFloat(det.precio).toFixed(2)}</td>
-        <td>$${subtotal.toFixed(2)}</td>
-        <td><button class="btn btn-danger rounded-pill py-2 border border-dark fw-bold shadow fs-5 eliminar">Eliminar</button></td>
-      `;
+        tr.querySelector('.eliminar').addEventListener('click', () => {
+          tr.remove();
+          actualizarTotales();
+        });
 
-      tr.querySelector('.eliminar').addEventListener('click', () => {
-        tr.remove();
-        actualizarTotales();
+        tablaBody.appendChild(tr);
       });
 
-      tablaBody.appendChild(tr);
-    });
-
-    actualizarTotales();
-
-  } catch (err) {
-    console.error('Error al cargar detalles del pedido:', err);
-    alert('No se pudieron cargar los ítems del pedido.');
+      actualizarTotales();
+    } catch (err) {
+      console.error('Error al cargar detalles del pedido:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudieron cargar los ítems del pedido.'
+      });
     }
   }
 
-  // Mostrar formulario directamente si hay datos cargados
   cargarDatos().then(() => {
     if (pedidoId) {
       cargarDetallesPedido(pedidoId);
@@ -116,23 +105,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const resItems = await fetch('http://localhost:3000/items');
       items = await resItems.json();
 
-      // Cargar categorías en el select
       selectCategoria.innerHTML = '<option value="">-- Selecciona categoría --</option>';
       categorias.forEach(c => {
         const option = document.createElement('option');
         option.value = c.cat_id;
-        option.textContent = c.denominacion; // Nombre de la categoría
+        option.textContent = c.denominacion;
         selectCategoria.appendChild(option);
       });
 
       selectItem.innerHTML = '<option value="">-- Selecciona plato --</option>';
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      alert('No se pudieron cargar categorías o platos.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudieron cargar categorías o platos.'
+      });
     }
   }
 
-  // Cambiar platos según categoría
   selectCategoria.addEventListener('change', () => {
     const catId = selectCategoria.value;
     const itemsFiltrados = items.filter(item => item.cat_id == catId);
@@ -150,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   formContainer.style.display = 'block';
 
-  // Manejar el envío del formulario
   formPedido.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -159,7 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemId = selectItem.value;
 
     if (!cantidadNueva || !catId || !itemId) {
-      alert('Por favor, completa todos los campos');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos.'
+      });
       return;
     }
 
@@ -167,12 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = items.find(i => i.item_id == itemId);
     const precioNum = Number(item.precio);
 
-    // Buscar si ya hay fila con este item_id en la tabla
     const filas = Array.from(tablaBody.querySelectorAll('tr'));
     const filaExistente = filas.find(fila => fila.dataset.itemId === itemId);
 
     if (filaExistente) {
-      // Actualizar cantidad y subtotal en la fila existente
       const tdCantidad = filaExistente.children[0];
       const tdSubtotal = filaExistente.children[4];
 
@@ -185,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const nuevoSubtotal = precioNum * nuevaCantidad;
       tdSubtotal.textContent = `$${nuevoSubtotal.toFixed(2)}`;
     } else {
-      // Agregar fila nueva
       const subtotal = precioNum * cantidadNueva;
 
       const tr = document.createElement('tr');
@@ -202,13 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
         <td><button class="btn btn-danger rounded-pill py-2 border border-dark fw-bold shadow fs-5 eliminar">Eliminar</button></td>
       `;
 
-      tablaBody.appendChild(tr);
-
-      // Botón eliminar para fila nueva
       tr.querySelector('.eliminar').addEventListener('click', () => {
         tr.remove();
         actualizarTotales();
       });
+
+      tablaBody.appendChild(tr);
     }
 
     actualizarTotales();
@@ -224,9 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
       total += subtotal;
     });
 
-    const descuentoInput = document.getElementById('descuento');
     const descuentoPct = descuentoInput ? parseFloat(descuentoInput.value) || 0 : 0;
-
     const descuentoMonto = (total * descuentoPct) / 100;
     const totalFinal = total - descuentoMonto;
 
@@ -234,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('total').textContent = totalFinal.toFixed(2);
   }
 
-  // Listener para input descuento si existe
   if (descuentoInput) {
     descuentoInput.addEventListener('input', actualizarTotales);
   } else {
@@ -243,46 +230,57 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.getElementById('guardar-pedido').addEventListener('click', async () => {
-    const inputMesa = document.getElementById('input-mesa');
-    const valorMesa = document.getElementById('valor-mesa').textContent;
-    const mesa = pedidoId
-      ? parseInt(document.getElementById('valor-mesa').textContent)
-      : parseInt(document.getElementById('input-mesa').value);
+  const mesa = pedidoId
+    ? parseInt(document.getElementById('valor-mesa').textContent)
+    : parseInt(document.getElementById('input-mesa').value);
 
-    if (!mesa || isNaN(mesa)) {
-      alert('Ingresá un número de mesa válido');
-      return;
-    }
+  if (!mesa || isNaN(mesa)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Mesa inválida',
+      text: 'Por favor, ingresa un número de mesa válido.'
+    });
+    return;
+  }
 
-    // Obtener filas de productos
-    const filas = Array.from(document.querySelectorAll('#pedido-table tbody tr'));
-    if (filas.length === 0) {
-      alert('El pedido no tiene productos');
-      return;
-    }
+  const filas = Array.from(document.querySelectorAll('#pedido-table tbody tr'));
+  if (filas.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Pedido vacío',
+      text: 'Agrega al menos un producto antes de guardar.'
+    });
+    return;
+  }
 
-    // Armar items
-    const items = filas.map(fila => ({
-      item_id: parseInt(fila.dataset.itemId),
-      cant: parseInt(fila.children[0].textContent),
-      precio: parseFloat(fila.children[3].textContent.replace('$', ''))
-    }));
+  const items = filas.map(fila => ({
+    item_id: parseInt(fila.dataset.itemId),
+    cant: parseInt(fila.children[0].textContent),
+    precio: parseFloat(fila.children[3].textContent.replace('$', ''))
+  }));
 
-    const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+  const descuento = parseFloat(document.getElementById('descuento').value) || 0;
 
-    const pedido = {
-      mesa: parseInt(mesa),
-      descuento,
-      estado: 'Pendiente',
-      items
-    };
+  const pedido = {
+    mesa,
+    descuento,
+    estado: 'Pendiente',
+    items
+  };
 
-    console.log('Pedido a enviar:', pedido);
-
-    try {
-        const url = pedidoId 
-        ? `http://localhost:3000/orders/${pedidoId}`
-        : `http://localhost:3000/orders`;
+  Swal.fire({
+    title: '¿Guardar pedido?',
+    text: '¿Deseas guardar este pedido?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Guardar',
+    cancelButtonText: 'Cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const url = pedidoId
+          ? `http://localhost:3000/orders/${pedidoId}`
+          : `http://localhost:3000/orders`;
         const method = pedidoId ? 'PUT' : 'POST';
         const res = await fetch(url, {
           method,
@@ -290,81 +288,23 @@ document.getElementById('guardar-pedido').addEventListener('click', async () => 
           body: JSON.stringify(pedido)
         });
 
-      if (!res.ok) throw new Error('Error guardando pedido');
+        if (!res.ok) throw new Error('Error guardando pedido');
 
-      alert('Pedido guardado correctamente');
-      // Notificación visual
-      Swal.fire({
-        icon: 'success',
-        title: 'Pedido creado',
-        text: `El pedido ${pedidoId} se guardó correctamente.`,
-        confirmButtonText: 'Aceptar',
-        timer: 3000,
-        timerProgressBar: true
-      });
-      window.location.href = 'lista_pedidos.html';
-    } catch (err) {
-      console.error(err);
-      alert('Ocurrió un error al guardar el pedido');
+        Swal.fire({
+          icon: 'success',
+          title: 'Pedido guardado',
+          text: 'El pedido se guardó correctamente.'
+        }).then(() => {
+          window.location.href = 'lista_pedidos.html';
+        });
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ocurrió un error al guardar el pedido.'
+        });
+      }
     }
+  });
 });
-
-const btnNotificaciones = document.getElementById('btn-notificaciones');
-    const notificacionesList = document.getElementById('notificaciones');
-    const badge = document.getElementById('badge');
-    const campana = document.getElementById('campana');
-    const toastContainer = document.getElementById('toast-container');
-
-    let notificacionesCount = 0;
-
-    btnNotificaciones.addEventListener('click', () => {
-      // Bootstrap gestiona el dropdown automáticamente
-      badge.style.display = 'none';
-      badge.textContent = '0';
-      campana.textContent = '🔔';
-      notificacionesCount = 0;
-    });
-
-    const socket = io('http://localhost:3000');
-
-    socket.on('nueva-llamada', data => {
-      const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
-
-      // Crear y mostrar toast individual
-      const toastElement = document.createElement('div');
-      toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
-      toastElement.setAttribute('role', 'alert');
-      toastElement.setAttribute('aria-live', 'assertive');
-      toastElement.setAttribute('aria-atomic', 'true');
-      toastElement.style.width = '100%';
-
-      toastElement.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body fs-5">${mensaje}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-      `;
-
-      toastContainer.appendChild(toastElement);
-
-      const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-      toast.show();
-
-      toastElement.addEventListener('hidden.bs.toast', () => {
-        toastElement.remove();
-      });
-
-      // Agregar a la lista después del toast
-      setTimeout(() => {
-        const li = document.createElement('li');
-        li.classList.add('dropdown-item', 'text-wrap');
-        li.textContent = mensaje;
-        notificacionesList.appendChild(li);
-
-        // Actualizar contador
-        notificacionesCount++;
-        badge.textContent = notificacionesCount;
-        badge.style.display = 'inline-block';
-        campana.textContent = '🔔';
-      }, 100);
-    });
