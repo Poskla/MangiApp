@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Perfil - MangiApp</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fdf8ee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .logo {
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      height: 40px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      text-align: left;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      font-size: 16px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: #999;
+    }
+
+    .btn-primary {
+      background: #fbc02d;
+      border: none;
+      padding: 14px;
+      border-radius: 999px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: #f9a825;
+    }
+
+    .footer-text {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="api_client.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+  <a href="index.html">
+    <img src="logo.png" alt="MangiApp">
+  </a>
+</div>
+
+  <form id="profileForm">
+    <label for="name" class="form-label">Nombre</label>
+    <input type="text" id="name" name="name" class="form-input" required>
+
+    <label for="currentPassword" class="form-label">Contraseña actual</label>
+    <input type="password" id="currentPassword" class="form-input">
+
+    <label for="newPassword" class="form-label">Nueva contraseña</label>
+    <input type="password" id="newPassword" class="form-input">
+
+    <label for="confirmPassword" class="form-label">Confirmar nueva contraseña</label>
+    <input type="password" id="confirmPassword" class="form-input">
+
+    <button type="submit" class="btn-primary">Guardar cambios</button>
+  </form>
+  <div class="footer-text">
+    Al guardar cambios aceptas los términos y condiciones.
+  </div>
+</div>
+
+<script>
+// Tu script de validación aquí
+if (!localStorage.getItem("token")) {
+  Swal.fire({
+    icon: "error",
+    title: "Sesión no iniciada",
+    text: "Debes iniciar sesión primero."
+  }).then(() => {
+    window.location.href = "login.html";
+  });
+} else {
+  apiGet("/api/perfil")
+    .then(data => {
+      document.getElementById("name").value = data.user;
+    })
+    .catch(error => {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message
+      }).then(() => {
+        window.location.href = "login.html";
+      });
+    });
+
+  document.getElementById("profileForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const currentPassword = document.getElementById("currentPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    if (!name) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campo obligatorio",
+        text: "El nombre no puede estar vacío."
+      });
+      return;
+    }
+
+    if (newPassword || confirmPassword) {
+      if (!currentPassword) {
+        Swal.fire({
+          icon: "warning",
+          title: "Contraseña actual requerida",
+          text: "Debes ingresar tu contraseña actual para cambiarla."
+        });
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        Swal.fire({
+          icon: "warning",
+          title: "Las contraseñas no coinciden",
+          text: "La nueva contraseña y su confirmación deben ser iguales."
+        });
+        return;
+      }
+    }
+
+    apiPost("/api/actualizar-perfil", {
+      name,
+      currentPassword,
+      newPassword
+    })
+    .then(data => {
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Perfil actualizado",
+          text: data.message
+        }).then(() => {
+          document.getElementById("currentPassword").value = "";
+          document.getElementById("newPassword").value = "";
+          document.getElementById("confirmPassword").value = "";
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message
+        });
+      }
+    })
+    .catch(error => {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message
+      });
+    });
+  });
+}
+</script>
+
+</body>
+</html>

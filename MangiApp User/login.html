@@ -4,15 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login MangiApp</title>
-  <!-- Si usas Bootstrap u otros estilos, podés agregar tu CSS -->
   <link rel="stylesheet" href="styles.css">
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
 <div class="container">
-  <!-- Formulario de Login -->
   <div class="login-form">
     <h3>Iniciar sesión</h3><br>
     <form id="loginForm">
@@ -31,7 +28,6 @@
     <a href="register.html" class="cuenta">Crear cuenta</a>
   </div>
 
-  <!-- Logo a la derecha -->
   <div class="logo-section">
     <img src="logo2.jpg" alt="logo" class="logo-img">
   </div>
@@ -72,10 +68,7 @@ document.querySelector("#loginForm").addEventListener("submit", async function(e
         showConfirmButton: false
       });
 
-      // Guardar token
       localStorage.setItem("token", data.token);
-
-      // Redirigir
       window.location.href = "index.html";
     } else {
       Swal.fire({
@@ -97,4 +90,3 @@ document.querySelector("#loginForm").addEventListener("submit", async function(e
 
 </body>
 </html>
-

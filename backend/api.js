@@ -435,6 +435,83 @@ app.post('/login', async (req, res) => {
   }
 });
 
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No autorizado: falta token' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded; // { user_id, user, rol }
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+}
+
+app.get('/api/perfil', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT user, email FROM `user` WHERE user_id = ?',
+      [req.user.user_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error al obtener perfil:', err);
+    res.status(500).json({ error: 'Error interno al obtener perfil' });
+  }
+});
+
+
+app.post('/api/actualizar-perfil', authMiddleware, async (req, res) => {
+  const { name, currentPassword, newPassword } = req.body;
+
+  if (!name) {
+    return res.json({ success: false, message: 'El nombre es obligatorio.' });
+  }
+
+  // Actualizar nombre
+  await db.promise().query(
+    'UPDATE `user` SET user = ? WHERE user_id = ?',
+    [name, req.user.user_id]
+  );
+
+  // Si se quiere cambiar la contraseña
+  if (newPassword) {
+    // Obtener contraseña actual en base
+    const [rows] = await db.promise().query(
+      'SELECT password FROM `user` WHERE user_id = ?',
+      [req.user.user_id]
+    );
+
+    if (rows.length === 0) {
+      return res.json({ success: false, message: 'Usuario no encontrado.' });
+    }
+
+    const coincide = await bcrypt.compare(currentPassword || "", rows[0].password);
+    if (!coincide) {
+      return res.json({ success: false, message: 'La contraseña actual es incorrecta.' });
+    }
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    await db.promise().query(
+      'UPDATE `user` SET password = ? WHERE user_id = ?',
+      [hash, req.user.user_id]
+    );
+  }
+
+  res.json({ success: true, message: 'Perfil actualizado correctamente.' });
+});
+
+
+
+
 
 
 
