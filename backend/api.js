@@ -23,12 +23,13 @@ app.get('/categorias', async (req, res) => {
 
 // Modificar categoría existente
 app.put('/categorias/:id', async (req, res) => {
-  const { nombre } = req.body; // Obtener el nuevo nombre de la categoría
+  const { nombre, imagenURL } = req.body; // Obtener el nuevo nombre de la categoría
   const id = req.params.id; // Obtener el ID de la categoría a modificar
   try {
+    //console.log(nombre,imagenURL);
     const [result] = await db.promise().query(
-      `UPDATE Category SET denominacion = ? WHERE cat_id = ?`,
-      [nombre, id]
+      `UPDATE Category SET denominacion = ?, imagenURL = ? WHERE cat_id = ?`,
+      [nombre, imagenURL, id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Categoría no encontrada' });
@@ -90,11 +91,13 @@ app.post('/items', async (req, res) => {
 
 // Agregar nueva categoría
 app.post('/categorias', async (req, res) => {
-  const { nombre } = req.body;
+  
+  const { nombre, imagenURL } = req.body;
   try {
+    //console.log(nombre,imagenURL);
     const [result] = await db.promise().query(
-      `INSERT INTO Category (denominacion) VALUES (?)`,
-      [nombre]
+      `INSERT INTO Category (denominacion, imagenURL) VALUES (?, ?)`,
+      [nombre, imagenURL]
     );
     res.status(201).json({ id: result.insertId, message: 'Categoría creada' });
   } catch (err) {
