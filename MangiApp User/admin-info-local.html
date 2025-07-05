@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Información del Negocio</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    form { max-width: 400px; margin-bottom: 30px; }
+    input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; }
+    label { display: block; margin-bottom: 6px; }
+    #imagenesActuales img { max-width: 120px; margin: 5px 10px 5px 0; border-radius: 6px; }
+    .mensaje { margin: 10px 0; color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Editar Información del Negocio</h1>
+
+  <form id="formNegocio" enctype="multipart/form-data">
+    <label>Nombre:<input type="text" name="nombre" required></label>
+    <label>Teléfono:<input type="text" name="telefono"></label>
+    <label>Ubicación:<input type="text" name="ubicacion"></label>
+    <label>E-mail:<input type="email" name="mail"></label>
+    <label>Horario:<input type="text" name="horario"></label>
+    <label>Descripción:<textarea name="descripcion"></textarea></label>
+    <label>WhatsApp:<input type="text" name="whatsapp"></label>
+    <label>Instagram:<input type="text" name="instagram"></label>
+    <label>Sitio web:<input type="text" name="sitio_web"></label>
+    <label>Imágenes:
+      <input type="file" name="imagenes" multiple accept="image/*">
+    </label>
+    <button type="submit">Guardar</button>
+  </form>
+
+  <div id="resultado" class="mensaje"></div>
+
+  <h3>Imágenes actuales</h3>
+  <div id="imagenesActuales"></div>
+
+
+<script>
+  // 1. Cargar datos actuales y prellenar formulario
+  fetch('http://localhost:3000/api/negocio')
+    .then(r => r.json())
+    .then(d => {
+      if (!d || !d.nombre) return;
+      document.querySelector('[name=nombre]').value = d.nombre || '';
+      document.querySelector('[name=telefono]').value = d.telefono || '';
+      document.querySelector('[name=ubicacion]').value = d.ubicacion || '';
+      document.querySelector('[name=mail]').value = d.mail || '';
+      document.querySelector('[name=horario]').value = d.horario || '';
+      document.querySelector('[name=descripcion]').value = d.descripcion || '';
+      document.querySelector('[name=whatsapp]').value = d.whatsapp || '';
+      document.querySelector('[name=instagram]').value = d.instagram || '';
+      document.querySelector('[name=sitio_web]').value = d.sitio_web || '';
+      if (d.imagenes && d.imagenes.length)
+        document.getElementById('imagenesActuales').innerHTML =
+          d.imagenes.map(img =>
+            `<span style="display:inline-block;position:relative;margin:4px;">
+              <img src="${img}" alt="Foto negocio">
+              <button onclick="eliminarImagen('${img}')" style="position:absolute;top:2px;right:2px;background:#f00;color:#fff;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;">🗑️</button>
+            </span>`
+          ).join('');
+
+    });
+
+  // 2. Guardar cambios (POST)
+  document.getElementById('formNegocio').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    document.getElementById('resultado').innerText = 'Guardando...';
+    try {
+      const res = await fetch('http://localhost:3000/api/negocio', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      document.getElementById('resultado').innerText = data.message || data.error || '';
+      // Refrescar imágenes actuales después de guardar
+      if (data.message) {
+        fetch('http://localhost:3000/api/negocio')
+          .then(r => r.json())
+          .then(d => {
+            if (d.imagenes && d.imagenes.length)
+              document.getElementById('imagenesActuales').innerHTML =
+                d.imagenes.map(img =>
+                  `<img src="${img}" alt="Foto negocio">`
+                ).join('');
+          });
+      }
+    } catch (err) {
+      document.getElementById('resultado').innerText = 'Error al guardar. Revisá conexión.';
+      document.getElementById('resultado').className = 'error';
+    }
+  });
+</script>
+<script>
+  // ... (tu código para cargar y guardar datos)
+
+  // Mostrar imágenes con botón eliminar
+  function renderizarImagenes(imagenes) {
+    document.getElementById('imagenesActuales').innerHTML =
+      imagenes.map(img =>
+        `<span style="display:inline-block;position:relative;margin:4px;">
+          <img src="${img}" alt="Foto negocio">
+          <button onclick="eliminarImagen('${img}')" style="position:absolute;top:2px;right:2px;background:#f00;color:#fff;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;">🗑️</button>
+        </span>`
+      ).join('');
+  }
+
+  // Usala así donde muestres imágenes actuales:
+  // renderizarImagenes(d.imagenes);
+
+  // Función para eliminar imagen con confirmación
+  function eliminarImagen(imgUrl) {
+    if (!confirm("¿Estás seguro que querés eliminar esta imagen?")) return;
+    fetch('http://localhost:3000/api/negocio/eliminar-imagen', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ imagen: imgUrl })
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || data.error);
+        // Refrescar imágenes después de borrar
+        fetch('http://localhost:3000/api/negocio')
+          .then(r => r.json())
+          .then(d => {
+            if (d.imagenes && d.imagenes.length)
+              renderizarImagenes(d.imagenes);
+            else
+              document.getElementById('imagenesActuales').innerHTML = '';
+          });
+      });
+  }
+</script>
+
+</body>
+</html>

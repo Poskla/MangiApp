@@ -298,17 +298,103 @@ app.delete('/faq/:id', async (req, res) => {
 
 
 /* INFO DEL LOCAL */
-app.get('/api/local', async (req, res) => {
-  const { id } = req.params;
+// ========== INFO DEL LOCAL Y GALERÍA ==========
+
+const multer = require('multer');
+const path = require('path');
+
+// Configuración Multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads')),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+const upload = multer({ storage });
+
+// Asegurá que Express sirva la carpeta de imágenes:
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+
+// Crear o actualizar la información del negocio
+app.post('/api/negocio', upload.array('imagenes', 5), async (req, res) => {
+  //console.log('req.body:', req.body);
   try {
-    const [rows] = await db.promise().query('SELECT * FROM local');
-    if (rows.length === 0) return res.status(404).json({ error: 'Local no encontrado' });
-    res.json(rows[0]);
+    const { nombre, telefono, ubicacion, mail, horario, descripcion, whatsapp, instagram, sitio_web } = req.body;
+    const files = req.files || [];
+    const rutasImg = files.map(f => '/uploads/' + f.filename);
+    let imagenesFinal = rutasImg.join(',');
+
+    const [exist] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
+    if (exist.length) {
+      // Si ya existe, ACTUALIZAR:
+      if (imagenesFinal && exist[0].imagenes) {
+        imagenesFinal = exist[0].imagenes + ',' + imagenesFinal;
+      } else if (!imagenesFinal && exist[0].imagenes) {
+        imagenesFinal = exist[0].imagenes;
+      }
+
+      await db.promise().query(
+        `UPDATE negocio 
+        SET nombre=?, telefono=?, ubicacion=?, mail=?, horario=?, descripcion=?, imagenes=?, whatsapp=?, instagram=?, sitio_web=?
+        WHERE id=?`,
+        [nombre, telefono, ubicacion, mail, horario, descripcion, imagenesFinal, whatsapp, instagram, sitio_web, exist[0].id]
+      );
+    } else {
+      // Si NO existe, INSERTAR:
+      await db.promise().query(
+        `INSERT INTO negocio 
+        (nombre, telefono, ubicacion, mail, horario, descripcion, imagenes, whatsapp, instagram, sitio_web)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [nombre, telefono, ubicacion, mail, horario, descripcion, imagenesFinal, whatsapp, instagram, sitio_web]
+      );
+    }
+    res.json({ message: '¡Datos guardados!' });
   } catch (err) {
-    console.error('Error al obtener local:', err);
-    res.status(500).json({ error: 'Error interno' });
+    res.status(500).json({ error: err.message });
   }
 });
+
+
+app.post('/api/negocio/eliminar-imagen', async (req, res) => {
+  try {
+    const { imagen } = req.body;
+    const [rows] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
+    if (!rows.length) return res.status(404).json({ error: 'Negocio no encontrado' });
+
+    let imagenes = rows[0].imagenes ? rows[0].imagenes.split(',') : [];
+    imagenes = imagenes.filter(img => img !== imagen);
+
+    await db.promise().query('UPDATE negocio SET imagenes=? WHERE id=?', [imagenes.join(','), rows[0].id]);
+
+    // (Opcional: eliminar el archivo físico del disco)
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, '..', imagen);
+    fs.unlink(filePath, err => {}); // No cortar flujo si falla
+
+    res.json({ message: 'Imagen eliminada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+// Obtener la información del negocio
+app.get('/api/negocio', async (req, res) => {
+  try {
+    const [rows] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
+    if (!rows.length) return res.json({});
+    const negocio = rows[0];
+    negocio.imagenes = negocio.imagenes ? negocio.imagenes.split(',') : [];
+    res.json(negocio);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 
 /* BOTON LLAMAR AL MOZO */ 
 app.post('/llamar-mozo', (req, res) => {

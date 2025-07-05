@@ -54,8 +54,7 @@ a {
       }
     }
 
-/* FAQ */
-/* ADMIN FAQ */
+
 /* ===========================
     FAQ VISUAL Y ADMIN
 =============================*/
@@ -248,7 +247,90 @@ a {
   background: #333 !important;
   border-color: #333 !important;
 }
-/* SOMOS */
+
+
+/* ===========================
+    ADMIN INFO LOCAL (LOCAL/COMERCIO)
+==============================*/
+
+/* Fondo cálido personalizado */
+.bg-light-custom {
+  background: #fff9f0 !important;
+}
+
+/* Caja principal formulario */
+.box-formulario {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px 0 rgba(65, 50, 20, 0.10);
+  max-width: 700px;
+  padding: 2.3rem 2rem 2rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.titulo-formulario {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #836200;
+  letter-spacing: -1px;
+}
+
+/* Botón volver */
+.boton-volver {
+  font-size: 1.09rem;
+  border-radius: 18px;
+  font-weight: 500;
+}
+
+/* Botón guardar */
+.btn-guardar {
+  font-size: 1.12rem;
+  font-weight: 600;
+  background-color: #FFD600 !important;
+  color: #614d0a !important;
+  border-radius: 10px;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 4px 16px 0 rgba(65, 50, 20, 0.07);
+}
+
+.btn-guardar:hover {
+  background-color: #ffbe00 !important;
+  color: #3d3006 !important;
+}
+
+
+
+/* --- Galería --- */
+.box-galeria {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(65, 50, 20, 0.10);
+  max-width: 700px;
+  padding: 1.7rem 1.3rem 1.4rem 1.3rem;
+}
+
+.titulo-galeria {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #836200;
+}
+
+.btn-agregar-imagen {
+  background: #FFD600 !important;
+  color: #614d0a !important;
+  font-weight: 600;
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 6px 16px;
+  box-shadow: 0 2px 8px 0 rgba(65, 50, 20, 0.06);
+}
+
+.btn-agregar-imagen:hover {
+  background: #ffbe00 !important;
+  color: #3d3006 !important;
+}
+
+/* SOMOS 
 
 .info-container {
   background-color: #fff;
@@ -280,7 +362,7 @@ a {
 .info-container .mb-2 {
   margin-bottom: 1rem;
 }
-
+*/
 /*
 
 .custom-container {

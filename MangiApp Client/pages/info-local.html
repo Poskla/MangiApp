@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Información del Negocio</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .info-box { max-width: 500px; margin: 0 auto; }
+    .label { font-weight: bold; }
+    #imagenesNegocio img {
+      max-width: 150px;
+      margin: 8px;
+      border-radius: 8px;
+      box-shadow: 0 1px 8px #0001;
+      vertical-align: middle;
+    }
+    h1 { text-align: center; }
+    .descripcion { margin-top: 15px; font-size: 1.1em; }
+    .social { margin: 12px 0; }
+    .social a { color: #0066cc; margin-right: 15px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1 id="nombreNegocio"></h1>
+  <div class="info-box">
+    <div><span class="label">Teléfono:</span> <span id="telefonoNegocio"></span></div>
+    <div><span class="label">WhatsApp:</span> <span id="whatsappNegocio"></span></div>
+    <div><span class="label">Instagram:</span> <span id="instagramNegocio"></span></div>
+    <div><span class="label">Sitio web:</span> <span id="sitioNegocio"></span></div>
+    <div><span class="label">Ubicación:</span> <span id="ubicacionNegocio"></span></div>
+    <div><span class="label">E-mail:</span> <span id="mailNegocio"></span></div>
+    <div><span class="label">Horario:</span> <span id="horarioNegocio"></span></div>
+    <div class="descripcion" id="descripcionNegocio"></div>
+    <h3>Imágenes del local</h3>
+    <div id="imagenesNegocio"></div>
+  </div>
+  <script>
+    fetch('http://localhost:3000/api/negocio')
+      .then(r => r.json())
+      .then(d => {
+        if (!d || !d.nombre) {
+          document.getElementById('nombreNegocio').innerText = "Negocio no encontrado";
+          return;
+        }
+        document.getElementById('nombreNegocio').innerText = d.nombre || '';
+        document.getElementById('telefonoNegocio').innerText = d.telefono || '';
+        
+        // WhatsApp como link
+        if (d.whatsapp) {
+          let link = d.whatsapp.replace(/\D/g, '');
+          document.getElementById('whatsappNegocio').innerHTML = `<a href="https://wa.me/${link}" target="_blank">${d.whatsapp}</a>`;
+        } else {
+          document.getElementById('whatsappNegocio').innerText = '';
+        }
+        
+        // Instagram como link
+        if (d.instagram) {
+          let user = d.instagram.replace('@', '').trim();
+          let url = user.startsWith('http') ? user : `https://instagram.com/${user}`;
+          document.getElementById('instagramNegocio').innerHTML = `<a href="${url}" target="_blank">${d.instagram}</a>`;
+        } else {
+          document.getElementById('instagramNegocio').innerText = '';
+        }
+        
+        // Sitio web como link
+        if (d.sitio_web) {
+          let url = d.sitio_web.trim();
+          if (!/^https?:\/\//.test(url)) url = 'http://' + url;
+          document.getElementById('sitioNegocio').innerHTML = `<a href="${url}" target="_blank">${d.sitio_web}</a>`;
+        } else {
+          document.getElementById('sitioNegocio').innerText = '';
+        }
+        
+        document.getElementById('ubicacionNegocio').innerText = d.ubicacion || '';
+        document.getElementById('mailNegocio').innerText = d.mail || '';
+        document.getElementById('horarioNegocio').innerText = d.horario || '';
+        document.getElementById('descripcionNegocio').innerText = d.descripcion || '';
+        if (d.imagenes && d.imagenes.length)
+          document.getElementById('imagenesNegocio').innerHTML =
+            d.imagenes.map(img =>
+              `<img src="${img}" alt="Foto del local">`
+            ).join('');
+        else
+          document.getElementById('imagenesNegocio').innerText = 'Sin imágenes por el momento.';
+      })
+      .catch(err => {
+        document.getElementById('nombreNegocio').innerText = "No se pudo cargar la información.";
+      });
+  </script>
+</body>
+</html>
