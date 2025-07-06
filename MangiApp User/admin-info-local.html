@@ -17,12 +17,31 @@
     .logo { max-width: 30%; margin-bottom: 20px; display:block; margin-left:auto; margin-right:auto; }
     .admin-title { font-size: 2.1rem; font-weight: bold; }
     .form-label { font-weight: bold; }
-    #imagenesActuales img { max-width: 120px; border-radius: 6px; margin-right: 12px; margin-bottom: 10px; }
-    .img-thumb { position: relative; display: inline-block; }
+    #imagenesActuales, #previewNuevasImgs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .img-thumb {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .img-thumb img {
+      max-width: 110px;
+      max-height: 85px;
+      border-radius: 7px;
+      cursor: zoom-in;
+      box-shadow: 0 2px 8px #0001;
+      transition: transform 0.17s;
+    }
+    .img-thumb img:hover { transform: scale(1.045);}
     .delete-btn {
       position: absolute; top: 2px; right: 8px; background: #f44336; color: #fff; border: none;
-      border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; cursor: pointer; box-shadow: 0 2px 5px #0001;
+      border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer; box-shadow: 0 2px 5px #0001;
+      z-index: 2;
     }
     .btn-inicio {
       position: absolute;
@@ -40,6 +59,7 @@
       .btn-inicio { left: 10px; top: 10px; padding: 6px 18px;}
       .dropdown-campana { right: 10px; top: 10px;}
       .logo { max-width: 60vw;}
+      #imagenesActuales, #previewNuevasImgs { gap: 7px;}
     }
   </style>
 </head>
@@ -67,7 +87,7 @@
     <img src="logo.png" alt="Logo" class="logo">
 
     <!-- Título -->
-    <h1 class="admin-title text-center mb-4">Administrar Negocio</h1>
+    <h1 class="admin-title text-center mb-4">EDITAR INFO LOCAL</h1>
 
     <!-- Formulario de edición -->
     <form id="formNegocio" enctype="multipart/form-data" class="row g-3">
@@ -109,7 +129,8 @@
       </div>
       <div class="col-12">
         <label class="form-label">Imágenes</label>
-        <input type="file" name="imagenes" multiple accept="image/*" class="form-control">
+        <input type="file" id="input-imagenes" name="imagenes" multiple accept="image/*" class="form-control" style="margin-bottom:0;">
+        <div id="previewNuevasImgs"></div>
         <div class="form-text">Podés seleccionar varias imágenes (máx. 5 por vez).</div>
       </div>
       <div class="col-12 mt-2">
@@ -122,8 +143,39 @@
     <div id="imagenesActuales"></div>
   </div>
 
+  <!-- Modal Bootstrap para ver imágenes ampliadas -->
+  <div class="modal fade" id="modalImagenAmpliada" tabindex="-1" aria-labelledby="modalImagenAmpliadaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-transparent border-0">
+        <div class="modal-body p-0 text-center">
+          <img id="imagenAmpliada" src="" alt="Imagen ampliada" style="max-width: 96%; max-height: 80vh; border-radius:18px; box-shadow:0 4px 24px #0005;">
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Renderizar imágenes con botón eliminar
+    // Vista previa de nuevas imágenes seleccionadas antes de guardar
+    document.getElementById('input-imagenes').addEventListener('change', function(e){
+      const files = e.target.files;
+      const preview = document.getElementById('previewNuevasImgs');
+      preview.innerHTML = '';
+      if (!files.length) return;
+      Array.from(files).forEach(f => {
+        if (!f.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function(evt){
+          const src = evt.target.result;
+          const span = document.createElement('span');
+          span.className = "img-thumb";
+          span.innerHTML = `<img src="${src}" alt="Nueva imagen" title="Ver grande" onclick="verImagenAmpliada('${src}')">`;
+          preview.appendChild(span);
+        };
+        reader.readAsDataURL(f);
+      });
+    });
+
+    // Mostrar imágenes actuales
     function renderizarImagenes(imagenes) {
       const cont = document.getElementById('imagenesActuales');
       if (!imagenes || imagenes.length === 0) {
@@ -132,13 +184,22 @@
       }
       cont.innerHTML = imagenes.map(img => `
         <span class="img-thumb">
-          <img src="${img}" alt="Foto negocio">
+          <img src="${img}" alt="Foto negocio" title="Ver grande" onclick="verImagenAmpliada('${img.replace(/'/g,"\\'")}')">
           <button type="button" class="delete-btn" onclick="eliminarImagen('${img}')">×</button>
         </span>
       `).join('');
     }
 
-    // Eliminar imagen con confirmación y refresh
+    // Modal imagen ampliada (tanto para nuevas previews como para las de BD)
+    function verImagenAmpliada(src) {
+      const img = document.getElementById('imagenAmpliada');
+      img.src = src;
+      const modal = new bootstrap.Modal(document.getElementById('modalImagenAmpliada'));
+      modal.show();
+    }
+    window.verImagenAmpliada = verImagenAmpliada;
+
+    // Eliminar imagen ya guardada
     function eliminarImagen(imgUrl) {
       if (!confirm("¿Estás seguro que querés eliminar esta imagen?")) return;
       fetch('http://localhost:3000/api/negocio/eliminar-imagen', {
@@ -154,6 +215,7 @@
             .then(d => renderizarImagenes(d.imagenes));
         });
     }
+    window.eliminarImagen = eliminarImagen;
 
     // Cargar datos y prellenar form al iniciar
     fetch('http://localhost:3000/api/negocio')
@@ -185,6 +247,10 @@
         const data = await res.json();
         document.getElementById('resultado').innerText = data.message || data.error || '';
         if (data.message) {
+          // Limpia input file y previews
+          document.getElementById('input-imagenes').value = "";
+          document.getElementById('previewNuevasImgs').innerHTML = "";
+          setTimeout(() => { document.getElementById('resultado').innerText = ''; }, 3000);
           fetch('http://localhost:3000/api/negocio')
             .then(r => r.json())
             .then(d => renderizarImagenes(d.imagenes));
