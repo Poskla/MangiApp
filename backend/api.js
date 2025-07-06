@@ -43,11 +43,14 @@ app.put('/categorias/:id', async (req, res) => {
 app.delete('/categorias/:id', async (req, res) => {
   const id = req.params.id; // Obtener el ID de la categoría a eliminar
   try {
+    // Primero, eliminar todos los platos que pertenecen a esta categoría
+    await db.promise().query('DELETE FROM Item WHERE cat_id = ?', [id]);
+    // Luego, eliminar la categoría
     const [result] = await db.promise().query('DELETE FROM Category WHERE cat_id = ?', [id]);
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Categoría no encontrada' });
     }
-    res.json({ message: 'Categoría eliminada' });
+    res.json({ message: 'Categoría y platos eliminados' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
