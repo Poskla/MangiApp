@@ -1,57 +1,186 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MangiApp | Editar Preguntas Frecuentes</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/MangiApp Client/assets/css/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MangiApp | Editar Preguntas Frecuentes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/MangiApp Client/assets/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background-color: #FFF9F0;
+      min-height: 100vh;
+      font-family: 'Trebuchet MS', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container-admin-faq {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px #0002;
+      padding: 50px 40px 40px 40px;
+      max-width: 750px;
+      min-width: 320px;
+      margin: 60px auto 0 auto;
+      position: relative;
+    }
+    .btn-inicio {
+      position: absolute;
+      left: 35px;
+      top: 35px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: #ffc800;
+      color: #191919;
+      border: 2px solid #222;
+      border-radius: 30px;
+      box-shadow: 0 3px 10px #0001;
+      padding: 10px 36px;
+      transition: box-shadow .15s;
+      z-index: 2;
+    }
+    .btn-inicio:hover {
+      background: #ffd900;
+      box-shadow: 0 4px 20px #0002;
+    }
+    .logo-mangiapp {
+      max-width: 250px;
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+    .admin-faq-title {
+      margin-top: 15px;
+      margin-bottom: 35px;
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .admin-faq-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .btn-crear {
+      background: #ffc800;
+      color: #222;
+      border-radius: 30px;
+      border: 2px solid #222;
+      padding: 10px 32px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      box-shadow: 0 2px 10px #0001;
+      transition: background .12s;
+    }
+    .btn-crear:hover { background: #ffd900; }
+    .admin-faq-card {
+      background: #f9f9f9;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 1px 6px #0001;
+      font-size: 1.1rem;
+    }
+    .admin-faq-q-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 3px;
+    }
+    .admin-faq-num {
+      font-weight: bold;
+      color: #c90;
+      font-size: 1.25rem;
+      margin-right: 7px;
+    }
+    .admin-faq-actions button {
+      background: transparent;
+      border: none;
+      margin-left: 6px;
+      cursor: pointer;
+    }
+    .admin-faq-answer-row { color: #444; margin-left: 30px;}
+    /* Edición inline */
+    .faq-edit-input, .faq-edit-textarea { margin-bottom: 7px; }
+    /* Campana */
+    .dropdown-campana {
+      position: absolute;
+      top: 30px;
+      right: 35px;
+      z-index: 2;
+    }
+    @media (max-width: 600px) {
+      .container-admin-faq { padding: 25px 5vw 10vw 5vw;}
+      .btn-inicio { left: 10px; top: 15px; font-size: 1rem; padding: 7px 18px; }
+      .logo-mangiapp { max-width: 60vw;}
+      .dropdown-campana { top: 10px; right: 10px;}
+    }
+  </style>
 </head>
 <body>
-<div class="admin-faq-main">
-    <div class="admin-faq-container">
-        <div class="admin-faq-header mb-3">
-            <a href="index.html" class="admin-faq-back">&larr;</a>
-            <span class="fw-bold text-muted fs-5">Editar preguntas frecuentes</span>
-        </div>
-        <h2 class="admin-faq-title text-center">Editar Preguntas Frecuentes</h2>
-        <div class="d-flex justify-content-end">
-            <button class="btn-crear" id="btn-nueva">Crear Pregunta Nueva</button>
-        </div>
-        <div id="admin-faq-list"></div>
+  <div class="container-admin-faq position-relative">
+    <!-- Botón Inicio -->
+    <button class="btn-inicio" onclick="window.location.href='index.html'">Inicio</button>
+    
+    <!-- Campana notificaciones -->
+    <div class="dropdown dropdown-campana">
+      <button id="btn-notificaciones"
+              class="btn position-relative" data-bs-toggle="dropdown" aria-expanded="false"
+              style="width: 50px; height: 50px; font-size: 20px; box-shadow: none;">
+        <span id="campana">🔔</span>
+        <span id="badge" class="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
+              style="display: none; font-size: 35px; min-width: 40px; height: 40px; line-height: 40px; padding: 0;">0</span>
+      </button>
+      <ul id="notificaciones" class="dropdown-menu shadow fs-5"
+          style="max-height: 600px; overflow-y: auto; min-width: 300px; left: auto; right: 0; margin-right: 50px;">
+      </ul>
     </div>
-</div>
 
-<!-- MODAL PARA NUEVA FAQ -->
-<div class="modal fade" id="modalNuevaFaq" tabindex="-1" aria-labelledby="modalNuevaFaqLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form id="form-nueva-faq" class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalNuevaFaqLabel">Crear Pregunta Nueva</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-          <div class="mb-3">
-              <label for="nueva-pregunta" class="form-label">Pregunta</label>
-              <input type="text" class="form-control" id="nueva-pregunta" maxlength="350" required>
-          </div>
-          <div class="mb-3">
-              <label for="nueva-respuesta" class="form-label">Respuesta</label>
-              <textarea class="form-control" id="nueva-respuesta" rows="3" maxlength="350" required></textarea>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-success">Guardar</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-      </div>
-    </form>
+    <!-- Toasts -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-4" style="z-index: 1100; max-width: 600px;"></div>
+
+    <!-- Logo -->
+    <img src="logo.png" class="logo-mangiapp mb-3" alt="Logo MangiApp" />
+    <h2 class="admin-faq-title text-center">Editar Preguntas Frecuentes</h2>
+
+    <div class="admin-faq-header-row">
+      <span></span>
+      <button class="btn-crear" id="btn-nueva">Crear Pregunta Nueva</button>
+    </div>
+
+    <div id="admin-faq-list"></div>
   </div>
-</div>
+
+  <!-- MODAL PARA NUEVA FAQ -->
+  <div class="modal fade" id="modalNuevaFaq" tabindex="-1" aria-labelledby="modalNuevaFaqLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="form-nueva-faq" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalNuevaFaqLabel">Crear Pregunta Nueva</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+            <div class="mb-3">
+                <label for="nueva-pregunta" class="form-label">Pregunta</label>
+                <input type="text" class="form-control" id="nueva-pregunta" maxlength="350" required>
+            </div>
+            <div class="mb-3">
+                <label for="nueva-respuesta" class="form-label">Respuesta</label>
+                <textarea class="form-control" id="nueva-respuesta" rows="3" maxlength="350" required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Guardar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
 function cargarFaqs() {
     fetch('http://localhost:3000/faq')
@@ -184,6 +313,66 @@ document.getElementById('form-nueva-faq').onsubmit = (e) => {
     })
     .catch(err => alert('Error al guardar FAQ: ' + err.message));
 };
+
+// Notificaciones mozo (campana)
+const btnNotificaciones = document.getElementById('btn-notificaciones');
+const notificacionesList = document.getElementById('notificaciones');
+const badge = document.getElementById('badge');
+const campana = document.getElementById('campana');
+const toastContainer = document.getElementById('toast-container');
+
+let notificacionesCount = 0;
+
+btnNotificaciones.addEventListener('click', () => {
+  badge.style.display = 'none';
+  badge.textContent = '0';
+  campana.textContent = '🔔';
+  notificacionesCount = 0;
+});
+
+const socket = io('http://localhost:3000');
+
+socket.on('nueva-llamada', data => {
+  const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
+
+  // Crear y mostrar toast individual
+  const toastElement = document.createElement('div');
+  toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
+  toastElement.setAttribute('role', 'alert');
+  toastElement.setAttribute('aria-live', 'assertive');
+  toastElement.setAttribute('aria-atomic', 'true');
+  toastElement.style.width = '100%';
+
+  toastElement.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body fs-5">${mensaje}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  toastContainer.appendChild(toastElement);
+
+  const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
+  toast.show();
+
+  toastElement.addEventListener('hidden.bs.toast', () => {
+    toastElement.remove();
+  });
+
+  // Agregar a la lista después del toast
+  setTimeout(() => {
+    const li = document.createElement('li');
+    li.classList.add('dropdown-item', 'text-wrap');
+    li.textContent = mensaje;
+    notificacionesList.appendChild(li);
+
+    // Actualizar contador
+    notificacionesCount++;
+    badge.textContent = notificacionesCount;
+    badge.style.display = 'inline-block';
+    campana.textContent = '🔔';
+  }, 100);
+});
 
 // Inicializar
 cargarFaqs();
