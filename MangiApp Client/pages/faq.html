@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,10 +8,9 @@
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="/MangiApp Client/assets/css/styles.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
-    </style>
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+</style>
 </head>
-
 <body>
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container-fluid">
@@ -34,21 +32,15 @@
             </div>
         </div>
     </nav>
-    <div class="bg-white d-flex justify-content-center align-items-center rounded-3" id="titulo" style="height: 70px;">
-        <h1 class="text-center m-0">PREGUNTAS FRECUENTES</h1>
+    <div class="container-fluid  bg-white py-3" id="titulo">
+            <h1 class="text-center">PREGUNTAS FRECUENTES</h1>
     </div>
-
     <div class="container px-5">
         <div class="accordion" id="faq-accordion">
             <!-- aquí se debería insertar -->
         </div>
     </div>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
-        crossorigin="anonymous"></script>
-<!-- Sweetalert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
         fetch('http://localhost:3000/faq')
             .then(res => res.json())
@@ -83,32 +75,54 @@
             });
         
         const params = new URLSearchParams(window.location.search);
-        if (!params.has('mesa')) {
-            params.set('mesa', '1');
-            window.location.search = params.toString();  // 🔄 redirige con ?mesa=1
+        const mesa = params.get('mesa');
+        const mesaSpan = document.getElementById('numero-mesa-navbar');
+
+        if (mesa) {
+        localStorage.setItem('mesa', mesa);
+        if (mesaSpan) mesaSpan.textContent = `Mesa ${mesa}`;
+        console.log('Número de mesa detectado en URL:', mesa);
+        } else {
+        // Si no viene en la URL, intento obtenerlo de localStorage
+        const mesaGuardada = localStorage.getItem('mesa');
+        if (mesaGuardada && mesaSpan) {
+            mesaSpan.textContent = `Mesa ${mesaGuardada}`;
+            console.log('Número de mesa recuperado de localStorage:', mesaGuardada);
+        } else {
+            console.warn('No se detectó número de mesa ni en URL ni en localStorage');
+        }
         }
 </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
+<!-- Sweetalert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const socket = io('http://localhost:3000');      
 
     function llamarMozo() {
-    const mesa = localStorage.getItem('mesa') || 'Sin número';
-    const hora = new Date().toLocaleTimeString();
-
-  socket.emit('llamar-mozo', { mesa, hora });
-
-  // Notificación visual
-  Swal.fire({
-    icon: 'success',
-    title: 'Llamado enviado',
-    text: `El mozo fue notificado para la mesa ${mesa}.`,
-    confirmButtonText: 'Aceptar',
-    timer: 3000,
-    timerProgressBar: true
-  });
-}
-</script>
+      const mesa = localStorage.getItem('mesa') || 'Sin número';
+      const hora = new Date().toLocaleTimeString();
+      if (window.io && window.Swal) {
+        const socket = io('http://localhost:3000');
+        socket.emit('llamar-mozo', { mesa, hora });
+        Swal.fire({
+          icon: 'success',
+          title: 'Llamado enviado',
+          text: `El mozo fue notificado para la mesa ${mesa}.`,
+          confirmButtonText: 'Aceptar',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } else {
+        alert('El mozo fue notificado para la mesa ' + mesa);
+      }
+    }
+  </script>
 </body>
 </html>

@@ -14,7 +14,7 @@ app.use(express.json());
 // Obtener todas las categorías
 app.get('/categorias', async (req, res) => {
   try {
-    const [categorias] = await db.promise().query('SELECT * FROM Category');
+    const [categorias] = await db.promise().query('SELECT * FROM category');
     res.json(categorias);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -59,17 +59,17 @@ app.delete('/categorias/:id', async (req, res) => {
 // Obtener todos los productos
 app.get('/items', async (req, res) => {
   try {
-    const [items] = await db.promise().query('SELECT * FROM Item');
+    const [items] = await db.promise().query('SELECT * FROM item');
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Obtener un producto específico
+// Obtener un pedido específico
 app.get('/item/:id', async (req, res) => {
   try {
-    const [rows] = await db.promise().query('SELECT * FROM Item WHERE item_id = ?', [req.params.id]);
+    const [rows] = await db.promise().query('SELECT * FROM item WHERE item_id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Producto no encontrado' });
     res.json(rows[0]);
   } catch (err) {
@@ -82,7 +82,7 @@ app.post('/items', async (req, res) => {
   const { denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id } = req.body;
   try {
     const [result] = await db.promise().query(
-      `INSERT INTO Item (denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id)
+      `INSERT INTO item (denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id]
     );
@@ -113,7 +113,7 @@ app.put('/items/:id', async (req, res) => {
   const { denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id } = req.body;
   try {
     await db.promise().query(
-      `UPDATE Item SET denominacion = ?, descripcion = ?, precio = ?, imagenURL = ?, disponible = ?, user_id = ?, cat_id = ?
+      `UPDATE item SET denominacion = ?, descripcion = ?, precio = ?, imagenURL = ?, disponible = ?, user_id = ?, cat_id = ?
        WHERE item_id = ?`,
       [denominacion, descripcion, precio, imagenURL, disponible, user_id, cat_id, req.params.id]
     );
@@ -136,8 +136,8 @@ app.delete('/items/:id', async (req, res) => {
 // 🔹 Obtener categorías con sus productos
 app.get('/categorias-con-items', async (req, res) => {
   try {
-    const [categorias] = await db.promise().query('SELECT * FROM Category');
-    const [items] = await db.promise().query('SELECT * FROM Item');
+    const [categorias] = await db.promise().query('SELECT * FROM category');
+    const [items] = await db.promise().query('SELECT * FROM item');
 
     const result = categorias.map(cat => ({
       ...cat,
@@ -151,9 +151,9 @@ app.get('/categorias-con-items', async (req, res) => {
   }
 });
  
-/* PEDIDOS */
+// PEDIDOS
 
-// Cancelar un pedido (actualizar estado a "Cancelado")
+// Cancelar un pedido (actualizar estado a "cancelado")
 app.put('/orders/:id/cancel', async (req, res) => {
   try {
     await db.promise().query(
@@ -200,48 +200,6 @@ app.get('/orders', async (req, res) => {
     }
   });
 
-// Obtener resumen de ventas en un rango de fechas
-app.get('/orders/summary', async (req, res) => {
-  const { inicio, fin } = req.query;
-
-  if (!inicio || !fin) {
-    return res.status(400).json({ error: 'Se requiere rango de fechas (inicio y fin)' });
-  }
-
-  try {
-    // Cantidad de pedidos y total
-    const [pedidosResumen] = await db.promise().query(
-      `SELECT COUNT(*) AS cantidad_pedidos, IFNULL(SUM(total),0) AS total_pedidos
-       FROM \`order\`
-       WHERE date BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY) AND estado = 'Cerrado'`,
-      [inicio, fin]
-    );
-
-    // Top 3 productos más pedidos 
-    const [topProductos] = await db.promise().query(
-      `SELECT i.denominacion, SUM(od.cant) AS cantidad
-       FROM \`order\` o
-       JOIN \`orderdetail\` od ON o.order_id = od.order_id
-       JOIN \`item\` i ON od.item_id = i.item_id
-       WHERE o.date BETWEEN ? AND ? AND o.estado = 'Cerrado'
-       GROUP BY i.item_id
-       ORDER BY cantidad DESC
-       LIMIT 3`,
-      [inicio, fin]
-    );
-
-    res.json({
-      cantidad_pedidos: pedidosResumen[0].cantidad_pedidos,
-      total_pedidos: pedidosResumen[0].total_pedidos,
-      top_productos: topProductos
-    });
-
-  } catch (err) {
-    console.error('Error al obtener resumen de ventas:', err);
-    res.status(500).json({ error: 'Error al obtener resumen de ventas' });
-  }
-});
-
 // Obtener detalles de un pedido específico
 app.get('/orders/:id', async (req, res) => {
   const orderId = parseInt(req.params.id);
@@ -280,10 +238,10 @@ app.post('/orders', async (req, res) => {
     const subtotal = items.reduce((sum, i) => sum + (i.precio * i.cant), 0);
     const total = subtotal - (subtotal * descuento / 100);
 
-    // Insertar orden en order
+    // Insertar orden (tabla `order` con comillas invertidas)
     const [result] = await db.promise().query(
       `INSERT INTO \`order\` (user_id, date, estado, subtotal, descuento, total, mesa)
-       VALUES (?, curdate(), ?, ?, ?, ?, ?)`,
+       VALUES (?, NOW(), ?, ?, ?, ?, ?)`,
       [1, estado, subtotal, descuento, total, mesa]
     );
 
@@ -320,16 +278,16 @@ app.put('/orders/:id', async (req, res) => {
     const subtotal = items.reduce((sum, i) => sum + (i.precio * i.cant), 0);
     const total = subtotal - (subtotal * descuento / 100);
 
-    // Actualizar la tabla order
+    // 1. Actualizar la tabla `order`
     await db.promise().query(
       'UPDATE \`order\` SET mesa = ?, descuento = ?, subtotal = ?, total = ? WHERE order_id = ?',
       [mesa, descuento, subtotal, total, orderId]
     );
 
-    // Eliminar los ítems anteriores
+    // 2. Eliminar los ítems anteriores
     await db.promise().query('DELETE FROM \`orderdetail\` WHERE order_id = ?', [orderId]);
 
-    // Insertar los nuevos ítems
+    // 3. Insertar los nuevos ítems
     for (const item of items) {
       await db.promise().query(
         'INSERT INTO \`orderdetail\` (order_id, item_id, cant) VALUES (?, ?, ?)',
@@ -348,108 +306,152 @@ app.put('/orders/:id', async (req, res) => {
 
 app.get('/faq', async (req, res) => {
   try {
-    const [rows] = await db.promise().query('SELECT * FROM \`faqs\` ORDER BY faq_id');
+    const [rows] = await db.promise().query('SELECT * FROM faqs ORDER BY faq_id');
     res.json(rows);
   } catch (error) {
-    console.error('Error al obtener FAQs:', error); 
+    console.error('Error al obtener FAQs:', error); // 👈 esto es clave
     res.status(500).json({ error: 'Error al obtener FAQs' });
   }
 });
 
+// Crear FAQ
+app.post('/faq', async (req, res) => {
+  const { faq, ans } = req.body;
+  if (!faq || !ans) return res.status(400).json({ error: 'Pregunta y respuesta requeridas' });
+  try {
+    await db.promise().query('INSERT INTO `faqs` (faq, ans) VALUES (?, ?)', [faq, ans]);
+    res.status(201).json({ message: 'FAQ creada' });
+  } catch (err) {
+    console.error('Error al crear FAQ:', err);
+    res.status(500).json({ error: 'Error al crear FAQ' });
+  }
+});
+
+// Editar FAQ
+app.put('/faq/:id', async (req, res) => {
+  const { faq, ans } = req.body;
+  try {
+    await db.promise().query('UPDATE `faqs` SET faq = ?, ans = ? WHERE faq_id = ?', [faq, ans, req.params.id]);
+    res.json({ message: 'FAQ actualizada' });
+  } catch (err) {
+    console.error('Error al actualizar FAQ:', err);
+    res.status(500).json({ error: 'Error al actualizar FAQ' });
+  }
+});
+
+// Eliminar una FAQ
+app.delete('/faq/:id', async (req, res) => {
+  try {
+    await db.promise().query('DELETE FROM faqs WHERE faq_id = ?', [req.params.id]);
+    res.json({ message: 'FAQ eliminada' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar FAQ' });
+  }
+});
+
+
 /* INFO DEL LOCAL */
-app.get('/api/local', async (req, res) => {
-  const { id } = req.params;
+// ========== INFO DEL LOCAL Y GALERÍA ==========
+
+const multer = require('multer');
+const path = require('path');
+
+// Configuración Multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads')),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+const upload = multer({ storage });
+
+// Asegurá que Express sirva la carpeta de imágenes:
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+
+// Crear o actualizar la información del negocio
+app.post('/api/negocio', upload.array('imagenes', 5), async (req, res) => {
+  //console.log('req.body:', req.body);
   try {
-    const [rows] = await db.promise().query('SELECT * FROM local');
-    if (rows.length === 0) return res.status(404).json({ error: 'Local no encontrado' });
-    res.json(rows[0]);
+    const { nombre, telefono, ubicacion, mail, horario, descripcion, whatsapp, instagram, sitio_web } = req.body;
+    const files = req.files || [];
+    const rutasImg = files.map(f => '/uploads/' + f.filename);
+    let imagenesFinal = rutasImg.join(',');
+
+    const [exist] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
+    if (exist.length) {
+      // Si ya existe, ACTUALIZAR:
+      if (imagenesFinal && exist[0].imagenes) {
+        imagenesFinal = exist[0].imagenes + ',' + imagenesFinal;
+      } else if (!imagenesFinal && exist[0].imagenes) {
+        imagenesFinal = exist[0].imagenes;
+      }
+
+      await db.promise().query(
+        `UPDATE negocio 
+        SET nombre=?, telefono=?, ubicacion=?, mail=?, horario=?, descripcion=?, imagenes=?, whatsapp=?, instagram=?, sitio_web=?
+        WHERE id=?`,
+        [nombre, telefono, ubicacion, mail, horario, descripcion, imagenesFinal, whatsapp, instagram, sitio_web, exist[0].id]
+      );
+    } else {
+      // Si NO existe, INSERTAR:
+      await db.promise().query(
+        `INSERT INTO negocio 
+        (nombre, telefono, ubicacion, mail, horario, descripcion, imagenes, whatsapp, instagram, sitio_web)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [nombre, telefono, ubicacion, mail, horario, descripcion, imagenesFinal, whatsapp, instagram, sitio_web]
+      );
+    }
+    res.json({ message: '¡Datos guardados!' });
   } catch (err) {
-    console.error('Error al obtener local:', err);
-    res.status(500).json({ error: 'Error interno' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.post('/api/negocio/eliminar-imagen', async (req, res) => {
+  try {
+    const { imagen } = req.body;
+    const [rows] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
+    if (!rows.length) return res.status(404).json({ error: 'Negocio no encontrado' });
+
+    let imagenes = rows[0].imagenes ? rows[0].imagenes.split(',') : [];
+    imagenes = imagenes.filter(img => img !== imagen);
+
+    await db.promise().query('UPDATE negocio SET imagenes=? WHERE id=?', [imagenes.join(','), rows[0].id]);
+
+    // (Opcional: eliminar el archivo físico del disco)
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, '..', imagen);
+    fs.unlink(filePath, err => {}); // No cortar flujo si falla
+
+    res.json({ message: 'Imagen eliminada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 
 
-app.post('/register', async (req, res) => {
-  const { user, email, password, rol } = req.body;
 
-  if (!user || !email || !password) {
-    return res.status(400).json({ error: 'Faltan campos requeridos' });
-  }
-
+// Obtener la información del negocio
+app.get('/api/negocio', async (req, res) => {
   try {
-    // Hashear contraseña
-    const hash = await bcrypt.hash(password, 10);
-
-    // Insertar usuario
-    await db.promise().query(
-      'INSERT INTO `user` (`user`, `email`, `password`, `rol`) VALUES (?, ?, ?, ?)',
-      [user, email, hash, rol || null]
-    );
-
-    res.status(201).json({ message: 'Usuario registrado correctamente' });
+    const [rows] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
+    if (!rows.length) return res.json({});
+    const negocio = rows[0];
+    negocio.imagenes = negocio.imagenes ? negocio.imagenes.split(',') : [];
+    res.json(negocio);
   } catch (err) {
-    console.error('Error al registrar:', err);
-    if (err.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({ error: 'El email o usuario ya está registrado' });
-    }
-    res.status(500).json({ error: 'Error al registrar usuario' });
+    res.status(500).json({ error: err.message });
   }
 });
-
-
-const SECRET = '1234'; // Cámbiala por algo seguro
-
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Faltan campos requeridos' });
-  }
-
-  try {
-    // Buscar por email
-    const [rows] = await db.promise().query(
-      'SELECT * FROM `user` WHERE email = ?',
-      [email]
-    );
-
-    if (rows.length === 0) {
-      return res.status(401).json({ error: 'Email no encontrado' });
-    }
-
-    const usuario = rows[0];
-
-    // Comparar contraseña
-    const coincide = await bcrypt.compare(password, usuario.password);
-    if (!coincide) {
-      return res.status(401).json({ error: 'Contraseña incorrecta' });
-    }
-
-    // Crear token
-    const token = jwt.sign(
-      { user_id: usuario.user_id, user: usuario.user, rol: usuario.rol },
-      SECRET,
-      { expiresIn: '8h' }
-    );
-
-    res.json({ message: 'Login exitoso', token });
-  } catch (err) {
-    console.error('Error en login:', err);
-    res.status(500).json({ error: 'Error en login' });
-  }
-});
-
-
-
 
 /* BOTON LLAMAR AL MOZO */ 
 app.post('/llamar-mozo', (req, res) => {
   const { mesa } = req.body;
   const hora = new Date().toLocaleTimeString();
 
-  io.emit('nueva-llamada', { mesa, hora }); 
+  io.emit('nueva-llamada', { mesa, hora }); // 🔥 ENVÍA EL EVENTO A LOS CLIENTES
   res.sendStatus(200);
 });
 
