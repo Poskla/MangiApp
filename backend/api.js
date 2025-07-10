@@ -497,6 +497,159 @@ io.on('connection', socket => {
   });
 });
 
+
+
+app.post('/register', async (req, res) => {
+  const { user, email, password, rol } = req.body;
+
+  if (!user || !email || !password) {
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  }
+
+  try {
+    // Hashear contraseña
+    const hash = await bcrypt.hash(password, 10);
+
+    // Insertar usuario
+    await db.promise().query(
+      'INSERT INTO `user` (`user`, `email`, `password`, `rol`) VALUES (?, ?, ?, ?)',
+      [user, email, hash, rol || null]
+    );
+
+    res.status(201).json({ message: 'Usuario registrado correctamente' });
+  } catch (err) {
+    console.error('Error al registrar:', err);
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'El email o usuario ya está registrado' });
+    }
+    res.status(500).json({ error: 'Error al registrar usuario' });
+  }
+});
+
+
+const SECRET = '1234'; // Cámbiala por algo seguro
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  }
+
+  try {
+    // Buscar por email
+    const [rows] = await db.promise().query(
+      'SELECT * FROM `user` WHERE email = ?',
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Email no encontrado' });
+    }
+
+    const usuario = rows[0];
+
+    // Comparar contraseña
+    const coincide = await bcrypt.compare(password, usuario.password);
+    if (!coincide) {
+      return res.status(401).json({ error: 'Contraseña incorrecta' });
+    }
+
+    // Crear token
+    const token = jwt.sign(
+      { user_id: usuario.user_id, user: usuario.user, rol: usuario.rol },
+      SECRET,
+      { expiresIn: '8h' }
+    );
+
+    res.json({ message: 'Login exitoso', token });
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(500).json({ error: 'Error en login' });
+  }
+});
+
+
+
+
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'No autorizado: falta token' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded; // { user_id, user, rol }
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Token inválido' });
+  }
+}
+
+app.get('/api/perfil', authMiddleware, async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT user, email FROM `user` WHERE user_id = ?',
+      [req.user.user_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Error al obtener perfil:', err);
+    res.status(500).json({ error: 'Error interno al obtener perfil' });
+  }
+});
+
+
+app.post('/api/actualizar-perfil', authMiddleware, async (req, res) => {
+  const { name, currentPassword, newPassword } = req.body;
+
+  if (!name) {
+    return res.json({ success: false, message: 'El nombre es obligatorio.' });
+  }
+
+  // Actualizar nombre
+  await db.promise().query(
+    'UPDATE `user` SET user = ? WHERE user_id = ?',
+    [name, req.user.user_id]
+  );
+
+  // Si se quiere cambiar la contraseña
+  if (newPassword) {
+    // Obtener contraseña actual en base
+    const [rows] = await db.promise().query(
+      'SELECT password FROM `user` WHERE user_id = ?',
+      [req.user.user_id]
+    );
+
+    if (rows.length === 0) {
+      return res.json({ success: false, message: 'Usuario no encontrado.' });
+    }
+
+    const coincide = await bcrypt.compare(currentPassword || "", rows[0].password);
+    if (!coincide) {
+      return res.json({ success: false, message: 'La contraseña actual es incorrecta.' });
+    }
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    await db.promise().query(
+      'UPDATE `user` SET password = ? WHERE user_id = ?',
+      [hash, req.user.user_id]
+    );
+  }
+
+  res.json({ success: true, message: 'Perfil actualizado correctamente.' });
+});
+
+
+
+
+
 /* === SERVIDOR === 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
