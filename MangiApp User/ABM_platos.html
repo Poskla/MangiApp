@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ABM Platos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="api_client.js"></script>
   <style>
     body {
       background-color: #FFF9F0;
@@ -273,161 +274,181 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  const apiBase = 'http://localhost:3000';
-  const tabla = document.getElementById('platos-table');
-  const modalPlatoEl = document.getElementById('modalPlato');
-  const modalPlato = new bootstrap.Modal(modalPlatoEl);
-  const formPlato = document.getElementById('formPlato');
+const apiBase = 'http://localhost:3000';
+const tabla = document.getElementById('platos-table');
+const modalPlatoEl = document.getElementById('modalPlato');
+const modalPlato = new bootstrap.Modal(modalPlatoEl);
+const formPlato = document.getElementById('formPlato');
 
-  const modalAgregarCategoriaEl = document.getElementById('modalAgregarCategoria');
-  const modalAgregarCategoria = new bootstrap.Modal(modalAgregarCategoriaEl);
-  const formAgregarCategoria = document.getElementById('formAgregarCategoria');
+const modalAgregarCategoriaEl = document.getElementById('modalAgregarCategoria');
+const modalAgregarCategoria = new bootstrap.Modal(modalAgregarCategoriaEl);
+const formAgregarCategoria = document.getElementById('formAgregarCategoria');
 
-  const modalEditarCategoriaEl = document.getElementById('modalEditarCategoria');
-  const modalEditarCategoria = new bootstrap.Modal(modalEditarCategoriaEl);
-  const formEditarCategoria = document.getElementById('formEditarCategoria');
+const modalEditarCategoriaEl = document.getElementById('modalEditarCategoria');
+const modalEditarCategoria = new bootstrap.Modal(modalEditarCategoriaEl);
+const formEditarCategoria = document.getElementById('formEditarCategoria');
 
-  const modalBorrarCategoriaEl = document.getElementById('modalBorrarCategoria');
-  const modalBorrarCategoria = new bootstrap.Modal(modalBorrarCategoriaEl);
+const modalBorrarCategoriaEl = document.getElementById('modalBorrarCategoria');
+const modalBorrarCategoria = new bootstrap.Modal(modalBorrarCategoriaEl);
 
-  const inputId = document.getElementById('inputId');
-  const inputCategoria = document.getElementById('inputCategoria');
-  const inputNombre = document.getElementById('inputNombre');
-  const inputDescripcion = document.getElementById('inputDescripcion');
-  const inputPrecio = document.getElementById('inputPrecio');
-  const inputDisponible = document.getElementById('inputDisponible');
-  const inputImagenURL = document.getElementById('inputImagenURL');
+const inputId = document.getElementById('inputId');
+const inputCategoria = document.getElementById('inputCategoria');
+const inputNombre = document.getElementById('inputNombre');
+const inputDescripcion = document.getElementById('inputDescripcion');
+const inputPrecio = document.getElementById('inputPrecio');
+const inputDisponible = document.getElementById('inputDisponible');
+const inputImagenURL = document.getElementById('inputImagenURL');
 
-  const inputCategoriaId = document.getElementById('inputCategoriaId');
-  const inputCategoriaNombre = document.getElementById('inputCategoriaNombre');
+let categorias = [];
 
-  let categorias = [];
+async function cargarCategorias() {
+  try {
+    const res = await fetch(`${apiBase}/categorias`);
+    categorias = await res.json();
+    inputCategoria.innerHTML = categorias
+      .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+      .join('');
 
-  async function cargarCategorias() {
-    try {
-      const res = await fetch(`${apiBase}/categorias`);
-      categorias = await res.json();
-      inputCategoria.innerHTML = categorias
-        .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
-        .join('');
-
-      // Cargar categorías en el filtro
-      const filtroCategoria = document.getElementById('filtro-categoria');
-      filtroCategoria.innerHTML = `
+    const filtroCategoria = document.getElementById('filtro-categoria');
+    filtroCategoria.innerHTML = `
       <option value="">Todas las categorías</option>
       ${categorias.map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`).join('')}
     `;
-    } catch (err) {
-      alert('Error al cargar categorías');
-      console.error(err);
-    }
-  }
-
-  let platos = []; // Definir la variable global para almacenar los platos
-  async function cargarPlatos() {
-    try {
-      const res = await fetch(`${apiBase}/items`);
-      platos = await res.json(); // Almacenar los platos en la variable global
-      tabla.innerHTML = '';
-      if (platos.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="6" class="text-center fst-italic text-muted">No hay platos disponibles</td></tr>`;
-        return;
-      }
-      // Llamar a la función de filtrar y ordenar después de cargar los platos
-      filtrarYOrdenar();
-    } catch (err) {
-      alert('Error al cargar platos');
-      console.error(err);
-    }
-  }
-
-
-  function filtrarYOrdenar() {
-    const filtroCategoria = document.getElementById('filtro-categoria').value;
-    const filtroDisponible = document.getElementById('filtro-disponible').value;
-    const ordenPrecio = document.getElementById('orden-precio').value;
-    const platosFiltrados = platos.filter(plato => {
-      const cat = categorias.find(c => c.cat_id === plato.cat_id);
-      if (filtroCategoria && cat.cat_id !== parseInt(filtroCategoria)) return false;
-      if (filtroDisponible && plato.disponible !== parseInt(filtroDisponible)) return false;
-      return true;
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudieron cargar las categorías.'
     });
-    if (ordenPrecio === 'asc') {
-      platosFiltrados.sort((a, b) => a.precio - b.precio);
-    } else if (ordenPrecio === 'desc') {
-      platosFiltrados.sort((a, b) => b.precio - a.precio);
-    }
+    console.error(err);
+  }
+}
+
+let platos = [];
+async function cargarPlatos() {
+  try {
+    const res = await fetch(`${apiBase}/items`);
+    platos = await res.json();
     tabla.innerHTML = '';
-    platosFiltrados.forEach((plato, i) => {
-      const cat = categorias.find(c => c.cat_id === plato.cat_id);
-      tabla.innerHTML += `
-      <tr>
-        <th scope="row">${i + 1}</th>
-        <td>${cat ? cat.denominacion : 'Sin categoría'}</td>
-        <td>${plato.denominacion}</td>
-        <td>$${parseFloat(plato.precio).toFixed(2)}</td>
-        <td>${plato.disponible == 1 ? 'Sí' : 'No'}</td>
-        <td class="acciones-btns">
-          <button class="btn btn-warning rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-editar" data-id="${plato.item_id}">Editar</button>
-          <button class="btn btn-danger rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-borrar" data-id="${plato.item_id}">Borrar</button>
-        </td>
-      </tr>
-    `;
+    if (platos.length === 0) {
+      tabla.innerHTML = `<tr><td colspan="6" class="text-center fst-italic text-muted">No hay platos disponibles</td></tr>`;
+      return;
+    }
+    filtrarYOrdenar();
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudieron cargar los platos.'
     });
+    console.error(err);
   }
+}
 
-
-
-  document.getElementById('btn-index').addEventListener('click', () => {
-    window.location.href = 'index.html';
+function filtrarYOrdenar() {
+  const filtroCategoria = document.getElementById('filtro-categoria').value;
+  const filtroDisponible = document.getElementById('filtro-disponible').value;
+  const ordenPrecio = document.getElementById('orden-precio').value;
+  const platosFiltrados = platos.filter(plato => {
+    const cat = categorias.find(c => c.cat_id === plato.cat_id);
+    if (filtroCategoria && cat.cat_id !== parseInt(filtroCategoria)) return false;
+    if (filtroDisponible && plato.disponible !== parseInt(filtroDisponible)) return false;
+    return true;
   });
-
-  document.getElementById('btn-agregar').addEventListener('click', () => {
-    formPlato.reset();
-    inputId.value = '';
-    document.getElementById('modalPlatoLabel').textContent = 'Agregar Plato';
-    modalPlato.show();
+  if (ordenPrecio === 'asc') {
+    platosFiltrados.sort((a, b) => a.precio - b.precio);
+  } else if (ordenPrecio === 'desc') {
+    platosFiltrados.sort((a, b) => b.precio - a.precio);
+  }
+  tabla.innerHTML = '';
+  platosFiltrados.forEach((plato, i) => {
+    const cat = categorias.find(c => c.cat_id === plato.cat_id);
+    tabla.innerHTML += `
+    <tr>
+      <th scope="row">${i + 1}</th>
+      <td>${cat ? cat.denominacion : 'Sin categoría'}</td>
+      <td>${plato.denominacion}</td>
+      <td>$${parseFloat(plato.precio).toFixed(2)}</td>
+      <td>${plato.disponible == 1 ? 'Sí' : 'No'}</td>
+      <td class="acciones-btns">
+        <button class="btn btn-warning rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-editar" data-id="${plato.item_id}">Editar</button>
+        <button class="btn btn-danger rounded-pill py-2 px-3 border border-dark fw-bold shadow btn-borrar" data-id="${plato.item_id}">Borrar</button>
+      </td>
+    </tr>`;
   });
+}
 
-  document.getElementById('btn-agregar-categoria').addEventListener('click', () => {
-    modalAgregarCategoria.show();
-  });
+document.getElementById('btn-index').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
 
-  document.getElementById('btn-editar-categoria').addEventListener('click', () => {
-    const selectCategoriaEditar = document.getElementById('selectCategoriaEditar');
-    selectCategoriaEditar.innerHTML = categorias
-      .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
-      .join('');
-    modalEditarCategoria.show();
-  });
+document.getElementById('btn-agregar').addEventListener('click', () => {
+  formPlato.reset();
+  inputId.value = '';
+  document.getElementById('modalPlatoLabel').textContent = 'Agregar Plato';
+  modalPlato.show();
+});
 
-  document.getElementById('btn-borrar-categoria').addEventListener('click', () => {
-    const selectCategoriaBorrar = document.getElementById('selectCategoriaBorrar');
-    selectCategoriaBorrar.innerHTML = categorias
-      .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
-      .join('');
-    modalBorrarCategoria.show();
-  });
+document.getElementById('btn-agregar-categoria').addEventListener('click', () => {
+  modalAgregarCategoria.show();
+});
 
-  document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
-    const id = document.getElementById('selectCategoriaBorrar').value; // Obtener el ID de la categoría seleccionada
-    try {
-      const res = await fetch(`${apiBase}/categorias/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al borrar categoría');
-      alert('Categoría borrada');
-      cargarCategorias();
-      modalBorrarCategoria.hide();
-    } catch (err) {
-      alert('Error al borrar categoría');
-      console.error(err);
+document.getElementById('btn-editar-categoria').addEventListener('click', () => {
+  const selectCategoriaEditar = document.getElementById('selectCategoriaEditar');
+  selectCategoriaEditar.innerHTML = categorias
+    .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+    .join('');
+  modalEditarCategoria.show();
+});
+
+document.getElementById('btn-borrar-categoria').addEventListener('click', () => {
+  const selectCategoriaBorrar = document.getElementById('selectCategoriaBorrar');
+  selectCategoriaBorrar.innerHTML = categorias
+    .map(c => `<option value="${c.cat_id}">${c.denominacion}</option>`)
+    .join('');
+  modalBorrarCategoria.show();
+});
+
+document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
+  const id = document.getElementById('selectCategoriaBorrar').value;
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción eliminará la categoría.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#aaa',
+    confirmButtonText: 'Sí, borrar',
+    cancelButtonText: 'Cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`${apiBase}/categorias/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error();
+        Swal.fire({
+          icon: 'success',
+          title: 'Categoría borrada',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        cargarCategorias();
+        modalBorrarCategoria.hide();
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo borrar la categoría.'
+        });
+        console.error(err);
+      }
     }
   });
+});
 
   document.getElementById('formAgregarCategoria').addEventListener('submit', async (e) => {
     e.preventDefault();
     const nuevaCategoria = {
       nombre: document.getElementById('inputCategoriaNombreAgregar').value.trim(),
-      imagenURL: document.getElementById('inputCategoriaImagenURL').value.trim(),
     };
 
     try {
@@ -449,27 +470,29 @@
   });
 
   document.getElementById('formEditarCategoria').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const id = document.getElementById('selectCategoriaEditar').value; // Obtener el ID de la categoría seleccionada
-  const categoriaEditada = {
-    nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
-    imagenURL: document.getElementById('inputCategoriaImagenURLEditar').value.trim(), // Agregar la URL de la imagen
-  };
-  try {
-    const res = await fetch(`${apiBase}/categorias/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(categoriaEditada)
-    });
-    if (!res.ok) throw new Error('Error al actualizar categoría');
-    alert('Categoría actualizada');
-    cargarCategorias();
-    modalEditarCategoria.hide();
-  } catch (err) {
-    alert('Error al actualizar categoría');
-    console.error(err);
-  }
-});
+    e.preventDefault();
+    const id = document.getElementById('inputCategoriaIdEditar').value;
+    const categoriaEditada = {
+      nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
+    };
+
+    try {
+      const res = await fetch(`${apiBase}/categorias/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(categoriaEditada)
+      });
+
+      if (!res.ok) throw new Error('Error al actualizar categoría');
+
+      alert('Categoría actualizada');
+      cargarCategorias();
+      modalEditarCategoria.hide();
+    } catch (err) {
+      alert('Error al actualizar categoría');
+      console.error(err);
+    }
+  });
 
   document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
     const id = document.getElementById('inputCategoriaIdBorrar').value;
@@ -491,43 +514,65 @@
   document.getElementById('filtro-disponible').addEventListener('change', filtrarYOrdenar);
   document.getElementById('orden-precio').addEventListener('change', filtrarYOrdenar);
 
-  tabla.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('btn-editar')) {
-      const id = e.target.getAttribute('data-id');
-      try {
-        const res = await fetch(`${apiBase}/item/${id}`);
-        if (!res.ok) throw new Error('Plato no encontrado');
-        const plato = await res.json();
-
-        inputId.value = plato.item_id;
-        inputCategoria.value = plato.cat_id;
-        inputNombre.value = plato.denominacion;
-        inputDescripcion.value = plato.descripcion || '';
-        inputPrecio.value = plato.precio;
-        inputDisponible.value = plato.disponible;
-        inputImagenURL.value = plato.imagenURL || '';
-
-        document.getElementById('modalPlatoLabel').textContent = 'Editar Plato';
-        modalPlato.show();
-      } catch (err) {
-        alert('Error al cargar plato para editar');
-        console.error(err);
-      }
-    } else if (e.target.classList.contains('btn-borrar')) {
-      const id = e.target.getAttribute('data-id');
-      if (confirm('¿Seguro que quieres borrar este plato?')) {
+tabla.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('btn-editar')) {
+    const id = e.target.dataset.id;
+    try {
+      const res = await fetch(`${apiBase}/item/${id}`);
+      if (!res.ok) throw new Error();
+      const plato = await res.json();
+      inputId.value = plato.item_id;
+      inputCategoria.value = plato.cat_id;
+      inputNombre.value = plato.denominacion;
+      inputDescripcion.value = plato.descripcion || '';
+      inputPrecio.value = plato.precio;
+      inputDisponible.value = plato.disponible;
+      inputImagenURL.value = plato.imagenURL || '';
+      document.getElementById('modalPlatoLabel').textContent = 'Editar Plato';
+      modalPlato.show();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cargar el plato.'
+      });
+      console.error(err);
+    }
+  } else if (e.target.classList.contains('btn-borrar')) {
+    const id = e.target.dataset.id;
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el plato.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Sí, borrar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
         try {
           const res = await fetch(`${apiBase}/items/${id}`, { method: 'DELETE' });
-          if (!res.ok) throw new Error('Error al borrar plato');
-          alert('Plato borrado');
+          if (!res.ok) throw new Error();
+          Swal.fire({
+            icon: 'success',
+            title: 'Plato borrado',
+            timer: 2000,
+            showConfirmButton: false
+          });
           cargarPlatos();
         } catch (err) {
-          alert('Error al borrar plato');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo borrar el plato.'
+          });
           console.error(err);
         }
       }
-    }
-  });
+    });
+  }
+});
 
   formPlato.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -572,74 +617,34 @@
     }
   });
 
-
-  // Inicializar
-  (async () => {
-    await cargarCategorias();
-    await cargarPlatos();
-  })();
-</script>
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-  const btnNotificaciones = document.getElementById('btn-notificaciones');
-  const notificacionesList = document.getElementById('notificaciones');
-  const badge = document.getElementById('badge');
-  const campana = document.getElementById('campana');
-  const toastContainer = document.getElementById('toast-container');
-
-  let notificacionesCount = 0;
-
-  btnNotificaciones.addEventListener('click', () => {
-    // Bootstrap gestiona el dropdown automáticamente
-    badge.style.display = 'none';
-    badge.textContent = '0';
-    campana.textContent = '🔔';
-    notificacionesCount = 0;
+  formEditarCategoria.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('selectCategoriaEditar').value; // Obtener el ID de la categoría seleccionada
+    const categoriaEditada = {
+      nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
+    };
+    try {
+      const res = await fetch(`${apiBase}/categorias/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(categoriaEditada)
+      });
+      if (!res.ok) throw new Error('Error al actualizar categoría');
+      alert('Categoría actualizada');
+      cargarCategorias();
+      modalEditarCategoria.hide();
+    } catch (err) {
+      alert('Error al actualizar categoría');
+      console.error(err);
+    }
   });
 
-  const socket = io('http://localhost:3000');
-
-  socket.on('nueva-llamada', data => {
-    const mensaje = `Mesa ${data.mesa} llamó a las ${data.hora}`;
-
-    // Crear y mostrar toast individual
-    const toastElement = document.createElement('div');
-    toastElement.className = 'toast align-items-center text-bg-danger border-0 mb-3 shadow px-4 py-3 toast-body fs-1';
-    toastElement.setAttribute('role', 'alert');
-    toastElement.setAttribute('aria-live', 'assertive');
-    toastElement.setAttribute('aria-atomic', 'true');
-    toastElement.style.width = '100%';
-
-    toastElement.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body fs-5">${mensaje}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-      `;
-
-    toastContainer.appendChild(toastElement);
-
-    const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-    toast.show();
-
-    toastElement.addEventListener('hidden.bs.toast', () => {
-      toastElement.remove();
-    });
-
-    // Agregar a la lista después del toast
-    setTimeout(() => {
-      const li = document.createElement('li');
-      li.classList.add('dropdown-item', 'text-wrap');
-      li.textContent = mensaje;
-      notificacionesList.appendChild(li);
-
-      // Actualizar contador
-      notificacionesCount++;
-      badge.textContent = notificacionesCount;
-      badge.style.display = 'inline-block';
-      campana.textContent = '🔔';
-    }, 100);
-  });
+// Inicializar
+(async () => {
+  await cargarCategorias();
+  await cargarPlatos();
+})();
 </script>
+
 
 </html>
