@@ -186,56 +186,63 @@
   </div>
 
   <!-- Modal Agregar Categoría -->
-  <div class="modal fade" id="modalAgregarCategoria" tabindex="-1" aria-labelledby="modalAgregarCategoriaLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <form id="formAgregarCategoria" class="modal-content">
-        <div class="modal-header bg-warning text-dark">
-          <h5 class="modal-title" id="modalAgregarCategoriaLabel">Agregar Categoría</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+<div class="modal fade" id="modalAgregarCategoria" tabindex="-1" aria-labelledby="modalAgregarCategoriaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formAgregarCategoria" class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modalAgregarCategoriaLabel">Agregar Categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <div class="mb-3">
+          <label for="inputCategoriaNombre" class="form-label">Nombre de la Categoría</label>
+          <input type="text" class="form-control" id="inputCategoriaNombreAgregar" name="nombre" required />
         </div>
-        <div class="modal-body text-start">
-          <div class="mb-3">
-            <label for="inputCategoriaNombre" class="form-label">Nombre de la Categoría</label>
-            <input type="text" class="form-control" id="inputCategoriaNombreAgregar" name="nombre" required />
-          </div>
+        <div class="mb-3">
+          <label for="inputCategoriaImagenURL" class="form-label">URL Imagen</label>
+          <input type="url" class="form-control" id="inputCategoriaImagenURL" name="imagenURL" />
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
-        </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+      </div>
+    </form>
   </div>
+</div>
+
 
   <!-- Modal Editar Categoría -->
-  <div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <form id="formEditarCategoria" class="modal-content">
-        <div class="modal-header bg-warning text-dark">
-          <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoría</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+<div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formEditarCategoria" class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoría</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body text-start">
+        <div class="mb-3">
+          <label for="selectCategoriaEditar" class="form-label">Seleccionar Categoría</label>
+          <select class="form-select" id="selectCategoriaEditar" required>
+            <!-- Las categorías se cargarán aquí -->
+          </select>
         </div>
-        <div class="modal-body text-start">
-          <div class="mb-3">
-            <label for="selectCategoriaEditar" class="form-label">Seleccionar Categoría</label>
-            <select class="form-select" id="selectCategoriaEditar" required>
-              <!-- Las categorías se cargarán aquí -->
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="inputCategoriaNombreEditar" class="form-label">Nombre de la Categoría</label>
-            <input type="text" class="form-control" id="inputCategoriaNombreEditar" name="nombre" required />
-          </div>
+        <div class="mb-3">
+          <label for="inputCategoriaNombreEditar" class="form-label">Nombre de la Categoría</label>
+          <input type="text" class="form-control" id="inputCategoriaNombreEditar" name="nombre" required />
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+        <div class="mb-3">
+          <label for="inputCategoriaImagenURLEditar" class="form-label">URL Imagen</label>
+          <input type="url" class="form-control" id="inputCategoriaImagenURLEditar" name="imagenURL" />
         </div>
-      </form>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">Guardar</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- Modal Borrar Categoría -->
   <div class="modal fade" id="modalBorrarCategoria" tabindex="-1" aria-labelledby="modalBorrarCategoriaLabel"
@@ -420,6 +427,7 @@
     e.preventDefault();
     const nuevaCategoria = {
       nombre: document.getElementById('inputCategoriaNombreAgregar').value.trim(),
+      imagenURL: document.getElementById('inputCategoriaImagenURL').value.trim(),
     };
 
     try {
@@ -441,29 +449,27 @@
   });
 
   document.getElementById('formEditarCategoria').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('inputCategoriaIdEditar').value;
-    const categoriaEditada = {
-      nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
-    };
-
-    try {
-      const res = await fetch(`${apiBase}/categorias/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(categoriaEditada)
-      });
-
-      if (!res.ok) throw new Error('Error al actualizar categoría');
-
-      alert('Categoría actualizada');
-      cargarCategorias();
-      modalEditarCategoria.hide();
-    } catch (err) {
-      alert('Error al actualizar categoría');
-      console.error(err);
-    }
-  });
+  e.preventDefault();
+  const id = document.getElementById('selectCategoriaEditar').value; // Obtener el ID de la categoría seleccionada
+  const categoriaEditada = {
+    nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
+    imagenURL: document.getElementById('inputCategoriaImagenURLEditar').value.trim(), // Agregar la URL de la imagen
+  };
+  try {
+    const res = await fetch(`${apiBase}/categorias/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(categoriaEditada)
+    });
+    if (!res.ok) throw new Error('Error al actualizar categoría');
+    alert('Categoría actualizada');
+    cargarCategorias();
+    modalEditarCategoria.hide();
+  } catch (err) {
+    alert('Error al actualizar categoría');
+    console.error(err);
+  }
+});
 
   document.getElementById('btn-confirmar-borrar').addEventListener('click', async () => {
     const id = document.getElementById('inputCategoriaIdBorrar').value;
@@ -566,27 +572,6 @@
     }
   });
 
-  formEditarCategoria.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('selectCategoriaEditar').value; // Obtener el ID de la categoría seleccionada
-    const categoriaEditada = {
-      nombre: document.getElementById('inputCategoriaNombreEditar').value.trim(),
-    };
-    try {
-      const res = await fetch(`${apiBase}/categorias/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(categoriaEditada)
-      });
-      if (!res.ok) throw new Error('Error al actualizar categoría');
-      alert('Categoría actualizada');
-      cargarCategorias();
-      modalEditarCategoria.hide();
-    } catch (err) {
-      alert('Error al actualizar categoría');
-      console.error(err);
-    }
-  });
 
   // Inicializar
   (async () => {
