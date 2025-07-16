@@ -101,8 +101,8 @@
   <main class="container py-2" style="max-width: 720px;">
     <div id="info-comercio">
       <!-- Render dinámico -->
-      <div class="comercio-nombre" id="nombre-comercio"></div>
-      <div class="comercio-descripcion" id="descripcion-comercio"></div>
+      <div class="comercio-nombre fs-1 fw-bold" id="nombre-comercio"></div>
+      <div class="comercio-descripcion fs-3 m-3" id="descripcion-comercio"></div>
       <div class="galeria-imagenes" id="galeria-imagenes"></div>
       <div class="comercio-contacto" id="footer-contacto"></div>
     </div>
@@ -143,21 +143,23 @@
         const gal = document.getElementById('galeria-imagenes');
         gal.innerHTML = (d.imagenes && d.imagenes.length)
           ? d.imagenes.map(img => 
-              `<img src="${img}" alt="Foto del local" onclick="verImagenAmpliada('${img.replace(/'/g,"\\'")}')" style="cursor:zoom-in;">`
+              `<img src="http://localhost:3000/${img}" alt="Foto del local" onclick="verImagenAmpliada('http://localhost:3000/${img.replace(/'/g,"\\'")}')" style="cursor:zoom-in;" onerror="this.remove()">`
             ).join('')
           : '<span class="text-muted">No hay imágenes.</span>';
+        console.log(document.getElementById('galeria-imagenes').innerHTML)
         // Contacto
         const cont = [];
-        if (d.whatsapp) cont.push(`<span class="contact-item"><i class="bi bi-whatsapp"></i> <a href="https://wa.me/${d.whatsapp}" target="_blank">${d.whatsapp}</a></span>`);
-        if (d.telefono) cont.push(`<span class="contact-item"><i class="bi bi-telephone"></i> <a href="tel:${d.telefono}">${d.telefono}</a></span>`);
-        if (d.ubicacion) cont.push(`<span class="contact-item"><i class="bi bi-geo-alt"></i> ${d.ubicacion}</span>`);
-        if (d.sitio_web) {
+        if (d.whatsapp) cont.push(`<span class="contact-item fs-3"><i class="bi bi-whatsapp"></i> <a href="https://wa.me/${d.whatsapp}" target="_blank">${d.whatsapp}</a></span>`);
+        if (d.telefono) cont.push(`<span class="contact-item fs-3"><i class="bi bi-telephone"></i> <a href="tel:${d.telefono}">${d.telefono}</a></span>`);
+        if (d.ubicacion) cont.push(`<span class="contact-item fs-3"><i class="bi bi-geo-alt"></i> ${d.ubicacion}</span>`);
+        if (d.sitio_web && d.sitio_web.trim()) {
           let url = d.sitio_web.trim();
           if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-          cont.push(`<span class="contact-item"><i class="bi bi-globe"></i> <a href="${url}" target="_blank">Sitio web</a></span>`);
+          const display = url.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+          cont.push(`<span class="contact-item fs-2"><i class="bi bi-globe"></i> <a href="${url}" target="_blank">${display}</a></span>`);
         }
-        if (d.instagram) cont.push(`<span class="contact-item"><i class="bi bi-instagram"></i> <a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank">${d.instagram}</a></span>`);
-        if (d.mail) cont.push(`<span class="contact-item"><i class="bi bi-envelope"></i> <a href="mailto:${d.mail}">${d.mail}</a></span>`);
+        if (d.instagram) cont.push(`<span class="contact-item fs-3"><i class="bi bi-instagram"></i> <a href="https://instagram.com/${d.instagram.replace('@','')}" target="_blank">${d.instagram}</a></span>`);
+        if (d.mail) cont.push(`<span class="contact-item fs-3"><i class="bi bi-envelope"></i> <a href="mailto:${d.mail}">${d.mail}</a></span>`);
         document.getElementById('footer-contacto').innerHTML = cont.join('');
       });
 

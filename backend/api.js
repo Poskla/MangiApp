@@ -366,34 +366,41 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Crear o actualizar la información del negocio
 app.post('/api/negocio', upload.array('imagenes', 5), async (req, res) => {
-  //console.log('req.body:', req.body);
   try {
     const { nombre, telefono, ubicacion, mail, horario, descripcion, whatsapp, instagram, sitio_web } = req.body;
     const files = req.files || [];
     const rutasImg = files.map(f => '/uploads/' + f.filename);
-    let imagenesFinal = rutasImg.join(',');
+    let imagenesFinal = JSON.stringify(rutasImg);
 
     const [exist] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
     if (exist.length) {
       // Si ya existe, ACTUALIZAR:
       if (imagenesFinal && exist[0].imagenes) {
-        imagenesFinal = exist[0].imagenes + ',' + imagenesFinal;
+        let existentes = [];
+        try {
+          existentes = JSON.parse(exist[0].imagenes);
+        } catch (e) {
+          existentes = exist[0].imagenes ? exist[0].imagenes.split(',') : [];
+        }
+        const nuevas = JSON.parse(imagenesFinal);
+        const todas = existentes.concat(nuevas);
+        imagenesFinal = JSON.stringify(todas);
       } else if (!imagenesFinal && exist[0].imagenes) {
         imagenesFinal = exist[0].imagenes;
       }
 
       await db.promise().query(
         `UPDATE negocio 
-        SET nombre=?, telefono=?, ubicacion=?, mail=?, horario=?, descripcion=?, imagenes=?, whatsapp=?, instagram=?, sitio_web=?
-        WHERE id=?`,
+         SET nombre=?, telefono=?, ubicacion=?, mail=?, horario=?, descripcion=?, imagenes=?, whatsapp=?, instagram=?, sitio_web=?
+         WHERE id=?`,
         [nombre, telefono, ubicacion, mail, horario, descripcion, imagenesFinal, whatsapp, instagram, sitio_web, exist[0].id]
       );
     } else {
       // Si NO existe, INSERTAR:
       await db.promise().query(
         `INSERT INTO negocio 
-        (nombre, telefono, ubicacion, mail, horario, descripcion, imagenes, whatsapp, instagram, sitio_web)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (nombre, telefono, ubicacion, mail, horario, descripcion, imagenes, whatsapp, instagram, sitio_web)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [nombre, telefono, ubicacion, mail, horario, descripcion, imagenesFinal, whatsapp, instagram, sitio_web]
       );
     }
@@ -410,14 +417,16 @@ app.post('/api/negocio/eliminar-imagen', async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: 'Negocio no encontrado' });
 
     let imagenes = rows[0].imagenes ? rows[0].imagenes.split(',') : [];
-    imagenes = imagenes.filter(img => img !== imagen);
+    
+    const soloPath = imagen.replace(/^https?:\/\/[^\/]+/, ''); // quita "http://localhost:3000"
+    imagenes = imagenes.filter(img => img !== soloPath);
 
     await db.promise().query('UPDATE negocio SET imagenes=? WHERE id=?', [imagenes.join(','), rows[0].id]);
 
     // (Opcional: eliminar el archivo físico del disco)
     const fs = require('fs');
     const path = require('path');
-    const filePath = path.join(__dirname, '..', imagen);
+    const filePath = path.join(__dirname, '..', soloPath);
     fs.unlink(filePath, err => {}); // No cortar flujo si falla
 
     res.json({ message: 'Imagen eliminada' });
@@ -432,7 +441,11 @@ app.get('/api/negocio', async (req, res) => {
     const [rows] = await db.promise().query('SELECT * FROM negocio LIMIT 1');
     if (!rows.length) return res.json({});
     const negocio = rows[0];
-    negocio.imagenes = negocio.imagenes ? negocio.imagenes.split(',') : [];
+    try {
+      negocio.imagenes = negocio.imagenes ? JSON.parse(negocio.imagenes) : [];
+    } catch {
+      negocio.imagenes = negocio.imagenes ? negocio.imagenes.split(',') : [];
+    }
     res.json(negocio);
   } catch (err) {
     res.status(500).json({ error: err.message });
